@@ -1,0 +1,317 @@
+<?php include('db_connect.php') ?>
+<?php
+$twhere ="";
+if($_SESSION['login_type'] != 1)
+  $twhere = "  ";
+?>
+<!-- Info boxes -->
+ <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              Welcome <?php echo $_SESSION['login_name'] ?>!
+            </div>
+          </div>
+  </div>
+<div class="col-12">
+
+ <div class="card">
+ <div class="card-body">
+ <label for="" class="control-label">Aircraft Selection</label>
+    <div class="row">
+      <div class="col">
+              <div class="card">
+                <div class="card-body">
+                <div class="row">
+                  <label for="" class="control-label">Select Database</label>
+                    <select class="form-control form-control-sm select2" name="user_ids[]" id="seldb">
+                     <option></option>
+                      <option>Maintenance Database</option>
+                      <option>Staggering Database</option>
+                    </select>
+                </div>
+                </div>
+              </div>
+      </div>
+      <div class="col">
+              <div class="card">
+                <div class="card-body">
+                <div class="row">
+                  <label for="" class="control-label">Select Aircraft</label>
+                    <select class="form-control form-control-sm select2" name="user_ids[]" id="selaircrafts">
+                      <option></option>
+                      <?php 
+                      $employees = $conn->query("SELECT *,concat(firstname,' ',lastname) as name FROM users where id !='".$_SESSION['login_id']."'  and airbase ='".$_SESSION['login_airbase']."' order by concat(firstname,' ',lastname) asc ");
+                      while($row= $employees->fetch_assoc()):
+                      ?>
+                      <option value="<?php echo $row['id'] ?>" <?php echo isset($user_ids) && in_array($row['id'],explode(',',$user_ids)) ? "selected" : '' ?>><?php echo ucwords($row['name']) ?></option>
+                      <?php endwhile; ?>
+                    </select>
+                </div>
+                </div>
+              </div>
+      </div>  
+      <div class="col">
+              <div class="card">
+                <div class="card-body">
+                <div class="row">
+                  <label for="" class="control-label">Select Aircraft</label>
+                    <select class="form-control form-control-sm select2" name="user_ids[]">
+                      <option></option>
+                      <?php 
+                      $employees = $conn->query("SELECT *,concat(firstname,' ',lastname) as name FROM users where id !='".$_SESSION['login_id']."'  and airbase ='".$_SESSION['login_airbase']."' order by concat(firstname,' ',lastname) asc ");
+                      while($row= $employees->fetch_assoc()):
+                      ?>
+                      <option value="<?php echo $row['id'] ?>" <?php echo isset($user_ids) && in_array($row['id'],explode(',',$user_ids)) ? "selected" : '' ?>><?php echo ucwords($row['name']) ?></option>
+                      <?php endwhile; ?>
+                    </select>
+                </div>
+                </div>
+              </div>
+      </div>  
+    </div>
+ </div>  
+</div>
+</div>
+  <hr>
+  <?php 
+
+    $where = "";
+    if($_SESSION['login_type'] == 2){
+      $where = " where manager_id = '{$_SESSION['login_id']}' ";
+    }elseif($_SESSION['login_type'] == 3){
+      $where = " where concat('[',REPLACE(user_ids,',','],['),']') LIKE '%[{$_SESSION['login_id']}]%' ";
+    }
+     $where2 = "";
+    if($_SESSION['login_type'] == 2){
+      $where2 = " where p.manager_id = '{$_SESSION['login_id']}' ";
+    }elseif($_SESSION['login_type'] == 3){
+      $where2 = " where concat('[',REPLACE(p.user_ids,',','],['),']') LIKE '%[{$_SESSION['login_id']}]%' ";
+    }
+    ?>
+        
+      <div class="row">
+        <div class="col">
+          <div class="row">
+              <div class="card card-outline card-success">
+                <div class="card-header">
+                  <b>Project Status - <?php echo $_SESSION['login_airbase'] ?> </b>
+                </div>
+                <div class="card-body p-0">
+                <div class="table-responsive">
+                  <table class="table m-0 table-hover">
+                    <colgroup>
+                      <col width="5%">
+                      <col width="30%">
+                      <col width="35%">
+                      <col width="15%">
+                      <col width="15%">
+                    </colgroup>
+                    <thead>
+                      <th>#</th>
+                      <th>Project</th>
+                      <th>Progress</th>
+                      <th>Status</th>
+                      <th></th>
+                    </thead>
+                    <tbody>
+                    <?php
+                    $i = 1;
+                    $stat = array("Pending","Started","On-Progress","On-Hold","Over Due","Done");
+                    $where = "";
+                    if($_SESSION['login_type'] == 2){
+                      $where = " where manager_id = '{$_SESSION['login_id']}' ";
+                    }elseif($_SESSION['login_type'] == 3){
+                      $where = " where concat('[',REPLACE(user_ids,',','],['),']') LIKE '%[{$_SESSION['login_id']}]%' ";
+                    }
+                    $qry = $conn->query("SELECT * FROM project_list $where order by name asc");
+                    while($row= $qry->fetch_assoc()):
+                      $prog= 0;
+                    $tprog = $conn->query("SELECT * FROM task_list where project_id = {$row['id']}")->num_rows;
+                    $cprog = $conn->query("SELECT * FROM task_list where project_id = {$row['id']} and status = 3")->num_rows;
+                    $prog = $tprog > 0 ? ($cprog/$tprog) * 100 : 0;
+                    $prog = $prog > 0 ?  number_format($prog,2) : $prog;
+                    $prod = $conn->query("SELECT * FROM user_productivity where project_id = {$row['id']}")->num_rows;
+                    if($row['status'] == 0 && strtotime(date('Y-m-d')) >= strtotime($row['start_date'])):
+                    if($prod  > 0  || $cprog > 0)
+                      $row['status'] = 2;
+                    else
+                      $row['status'] = 1;
+                    elseif($row['status'] == 0 && strtotime(date('Y-m-d')) > strtotime($row['end_date'])):
+                    $row['status'] = 4;
+                    endif;
+                      ?>
+                      <tr>
+                          <td>
+                            <?php echo $i++ ?>
+                          </td>
+                          <td>
+                              <a>
+                                  <?php echo ucwords($row['name']) ?>
+                              </a>
+                              <br>
+                              <small>
+                                  Due: <?php echo date("Y-m-d",strtotime($row['end_date'])) ?>
+                              </small>
+                          </td>
+                          <td class="project_progress">
+                              <div class="progress progress-sm">
+                                  <div class="progress-bar bg-green" role="progressbar" aria-valuenow="57" aria-valuemin="0" aria-valuemax="100" style="width: <?php echo $prog ?>%">
+                                  </div>
+                              </div>
+                              <small>
+                                  <?php echo $prog ?>% Complete
+                              </small>
+                          </td>
+                          <td class="project-state">
+                              <?php
+                                if($stat[$row['status']] =='Pending'){
+                                  echo "<span class='badge badge-secondary'>{$stat[$row['status']]}</span>";
+                                }elseif($stat[$row['status']] =='Started'){
+                                  echo "<span class='badge badge-primary'>{$stat[$row['status']]}</span>";
+                                }elseif($stat[$row['status']] =='On-Progress'){
+                                  echo "<span class='badge badge-info'>{$stat[$row['status']]}</span>";
+                                }elseif($stat[$row['status']] =='On-Hold'){
+                                  echo "<span class='badge badge-warning'>{$stat[$row['status']]}</span>";
+                                }elseif($stat[$row['status']] =='Over Due'){
+                                  echo "<span class='badge badge-danger'>{$stat[$row['status']]}</span>";
+                                }elseif($stat[$row['status']] =='Done'){
+                                  echo "<span class='badge badge-success'>{$stat[$row['status']]}</span>";
+                                }
+                              ?>
+                          </td>
+                          <td>
+                            <a class="btn btn-primary btn-sm" href="./index.php?page=view_project&id=<?php echo $row['id'] ?>">
+                                  <i class="fas fa-folder">
+                                  </i>
+                                  View
+                            </a>
+                          </td>
+                      </tr>
+                    <?php endwhile; ?>
+                    </tbody>  
+                  </table>
+                </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+            <div class="col-md-8">
+          <div class="row">
+          <div class="col-12 col-md-6 col-md-12">
+            <div class="small-box bg-light shadow-sm border">
+              <div class="inner">
+                <h3><?php echo $conn->query("SELECT * FROM project_list $where")->num_rows; ?></h3>
+
+                <p>Total Projects</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-layer-group"></i>
+              </div>
+            </div>
+          </div>
+           <div class="col-12 col-md-6 col-md-12">
+            <div class="small-box bg-light shadow-sm border">
+              <div class="inner">
+                <h3><?php echo $conn->query("SELECT t.*,p.name as pname,p.start_date,p.status as pstatus, p.end_date,p.id as pid FROM task_list t inner join project_list p on p.id = t.project_id $where2")->num_rows; ?></h3>
+                <p>Total Tasks</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-tasks"></i>
+              </div>
+            </div>
+          </div>
+      </div>
+        </div>
+            </div>
+        </div>
+        <div class="col">
+          <div class="card card-outline card-success">
+              <div class="card-header">
+                <b>Wing Hirarchy - <?php echo $_SESSION['login_airbase'] ?> </b>
+              </div>
+              <div class="card-body p-0">
+                  <div id="chart_div"></div>
+              </div>
+            </div>
+        </div>
+      </div>
+
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {packages:["orgchart"]});
+      google.charts.setOnLoadCallback(drawChart);
+      $base = "<?php echo $_SESSION['login_airbase'] ?>";
+      function drawChart() {
+  var jsonData = $.ajax({
+    url: "getData.php",
+    data:{base:$base},
+    dataType: "json",
+    async: false
+  }).responseText;
+  console.log(jsonData);
+  var data = new google.visualization.DataTable(jsonData);
+
+  // Create the chart.
+  var chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
+
+  // Add event listeners to nodes.
+  google.visualization.events.addListener(chart, 'select', function () {
+    var selection = chart.getSelection();
+    if (selection.length > 0) {
+      // Get the selected row and its ID.
+      var row = selection[0].row;
+      var id = data.getValue(row, 0);
+
+      // Prompt the user to enter the new name.
+      var name = prompt("Enter the new name for this node:", data.getValue(row, 1));
+      if (name !== null) {
+        // Update the data and redraw the chart.
+        data.setCell(row, 1, name);
+        $.ajax({
+          type: "POST",
+          url: "updateData.php",
+          data: { id: id, name: name },
+          dataType: "json",
+          success: function (response) {
+            console.log(response);
+          },
+          error: function (xhr, status, error) {
+            console.log(xhr.responseText);
+          }
+        });
+        chart.draw(data, { allowHtml: true });
+      }
+    }
+  });
+
+  // Draw the chart.
+  chart.draw(data, { allowHtml: true });
+}
+
+      function createOption(ddl, text, value) {
+        var opt = document.createElement('option');
+        opt.value = value;
+        opt.text = text;
+        ddl.options.add(opt);
+      }
+      document.getElementById("seldb").onchange = function() {
+        
+        var val = document.getElementById("seldb").selectedIndex;
+        console.log(val);
+        if (val ==1)
+        { 
+          $("#selaircrafts").empty();
+          createOption(document.getElementById("selaircrafts"), "Gantt chart", "Gantt chart");
+          createOption(document.getElementById("selaircrafts"), "K-8 (AJTS)", "K-8 (AJTS)");
+          createOption(document.getElementById("selaircrafts"), "Super Mushak (PFT)");
+          createOption(document.getElementById("selaircrafts"), "T-37 (BFT");
+        }
+        if (val ==2)
+        {
+          createOption(document.getElementById("selaircrafts"), "K-8 (AJTS)", "K-8 (AJTS)");
+          createOption(document.getElementById("selaircrafts"), "Super Mushak (PFT)");
+          createOption(document.getElementById("selaircrafts"), "T-37 (BFT");
+        }
+      };
+   </script>
