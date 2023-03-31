@@ -39,35 +39,11 @@ if($_SESSION['login_type'] != 1)
                   <label for="" class="control-label">Select Aircraft</label>
                     <select class="form-control form-control-sm select2" name="user_ids[]" id="selaircrafts">
                       <option></option>
-                      <?php 
-                      $employees = $conn->query("SELECT *,concat(firstname,' ',lastname) as name FROM users where id !='".$_SESSION['login_id']."'  and airbase ='".$_SESSION['login_airbase']."' order by concat(firstname,' ',lastname) asc ");
-                      while($row= $employees->fetch_assoc()):
-                      ?>
-                      <option value="<?php echo $row['id'] ?>" <?php echo isset($user_ids) && in_array($row['id'],explode(',',$user_ids)) ? "selected" : '' ?>><?php echo ucwords($row['name']) ?></option>
-                      <?php endwhile; ?>
                     </select>
                 </div>
                 </div>
               </div>
-      </div>  
-      <div class="col">
-              <div class="card">
-                <div class="card-body">
-                <div class="row">
-                  <label for="" class="control-label">Select Aircraft</label>
-                    <select class="form-control form-control-sm select2" name="user_ids[]">
-                      <option></option>
-                      <?php 
-                      $employees = $conn->query("SELECT *,concat(firstname,' ',lastname) as name FROM users where id !='".$_SESSION['login_id']."'  and airbase ='".$_SESSION['login_airbase']."' order by concat(firstname,' ',lastname) asc ");
-                      while($row= $employees->fetch_assoc()):
-                      ?>
-                      <option value="<?php echo $row['id'] ?>" <?php echo isset($user_ids) && in_array($row['id'],explode(',',$user_ids)) ? "selected" : '' ?>><?php echo ucwords($row['name']) ?></option>
-                      <?php endwhile; ?>
-                    </select>
-                </div>
-                </div>
-              </div>
-      </div>  
+      </div>   
     </div>
  </div>  
 </div>
@@ -304,14 +280,27 @@ if($_SESSION['login_type'] != 1)
           $("#selaircrafts").empty();
           createOption(document.getElementById("selaircrafts"), "Gantt chart", "Gantt chart");
           createOption(document.getElementById("selaircrafts"), "K-8 (AJTS)", "K-8 (AJTS)");
-          createOption(document.getElementById("selaircrafts"), "Super Mushak (PFT)");
-          createOption(document.getElementById("selaircrafts"), "T-37 (BFT");
+          createOption(document.getElementById("selaircrafts"), "Super Mushak (PFT)", "Super Mushak (PFT)");
+          createOption(document.getElementById("selaircrafts"), "T-37 (BFT)", "T-37 (BFT)");
         }
         if (val ==2)
         {
           createOption(document.getElementById("selaircrafts"), "K-8 (AJTS)", "K-8 (AJTS)");
           createOption(document.getElementById("selaircrafts"), "Super Mushak (PFT)");
-          createOption(document.getElementById("selaircrafts"), "T-37 (BFT");
+          createOption(document.getElementById("selaircrafts"), "T-37 (BFT)");
+        }
+      };
+
+      document.getElementById("selaircrafts").onchange = function() {
+        var val = document.getElementById("selaircrafts").value;
+        if (val === "K-8 (AJTS)") {
+          window.location.href = "index.php?page=k8";
+        }
+        if (val === "Super Mushak (PFT)") {
+          window.location.href = "index.php?page=msk";
+        }
+        if (val === "T-37 (BFT)") {
+          window.location.href = "index.php?page=t37";
         }
       };
    </script>
