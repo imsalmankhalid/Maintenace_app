@@ -47,7 +47,7 @@
     <section class="content">
       <div class="container-fluid">
          <?php 
-            $page = isset($_GET['page']) ? $_GET['page'] : 'home';
+            $page = isset($_GET['page']) ? $_GET['page'] : 'main';
             if(!file_exists($page.".php")){
                 include '404.html';
             }else{

@@ -90,7 +90,7 @@ header("location:index.php?page=home");
       },
       success:function(resp){
         if(resp == 1){
-          location.href ='index.php?page=home';
+          location.href ='index.php?page=main';
         }else{
           $('#login-form').prepend('<div class="alert alert-danger">Username or password is incorrect.</div>')
           end_load();

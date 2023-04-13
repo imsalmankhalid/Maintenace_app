@@ -29,7 +29,16 @@ if(isset($_GET['id'])){
 				<option value="3" <?php echo isset($status) && $status == 3 ? 'selected' : '' ?>>Done</option>
 			</select>
 		</div>
+		<div class="form-group">
+			<label for="">Start Date</label>
+			<input type="date" class="form-control form-control-sm" name="start_date" value="<?php echo isset($start_date) ? $start_date : '' ?>" required>
+		</div>
+		<div class="form-group">
+			<label for="">End Date</label>
+			<input type="date" class="form-control form-control-sm" name="end_date" value="<?php echo isset($end_date) ? $end_date : '' ?>" required>
+		</div>
 	</form>
+
 </div>
 
 <script>
@@ -68,8 +77,14 @@ if(isset($_GET['id'])){
 					setTimeout(function(){
 						location.reload()
 					},1500)
-				}
-			}
+				} else {
+                alert_toast(resp, "error");
+            	}
+			},
+        	error:function(xhr, status, error){
+            alert_toast(error, "error");
+        }
+			
     	})
     })
 </script>

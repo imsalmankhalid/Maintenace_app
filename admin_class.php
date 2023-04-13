@@ -271,11 +271,22 @@ Class Action {
 	}
 	function save_task(){
 		extract($_POST);
+		$start_date = $_POST["start_date"];
+		$end_date = $_POST["end_date"];
+		$start = new DateTime($start_date);
+		$end = new DateTime($end_date);
+
+		// Calculate duration based on difference in days
+		$duration = $end->diff($start)->days + 1;
+		$_POST['duration'] = $duration;
+		$_POST['date_created'] = $_POST["start_date"];
+		unset($_POST['start_date']);
 		$data = "";
 		foreach($_POST as $k => $v){
 			if(!in_array($k, array('id')) && !is_numeric($k)){
 				if($k == 'description')
 					$v = htmlentities(str_replace("'","&#x2019;",$v));
+
 				if(empty($data)){
 					$data .= " $k='$v' ";
 				}else{
@@ -290,6 +301,8 @@ Class Action {
 		}
 		if($save){
 			return 1;
+		}else {
+			return $this->db->error;
 		}
 	}
 	function delete_task(){
@@ -325,7 +338,14 @@ Class Action {
 			$save = $this->db->query("UPDATE user_productivity set $data where id = $id");
 		}
 		if($save){
-			return 1;
+			$tid = $_POST['task_id'];
+			$dur = $dur / 24;
+			$save = $this->db->query("UPDATE task_list set logged_days = logged_days + $dur where id = $tid");
+			if($save){
+				return 1;
+			}
+			else
+				return $this->db->error;
 		}
 	}
 	function delete_progress(){

@@ -97,8 +97,13 @@ if(isset($_GET['id'])){
 					setTimeout(function(){
 						location.reload()
 					},1500)
-				}
-			}
+				} else {
+                alert_toast(resp, "error");
+            	}
+			},
+				error:function(xhr, status, error){
+				alert_toast(error, "error");
+        	}
     	})
     })
 </script>

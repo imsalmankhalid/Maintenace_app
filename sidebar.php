@@ -103,7 +103,7 @@
   </aside>
   <script>
   	$(document).ready(function(){
-      var page = '<?php echo isset($_GET['page']) ? $_GET['page'] : 'home' ?>';
+      var page = '<?php echo isset($_GET['page']) ? $_GET['page'] : 'main' ?>';
   		var s = '<?php echo isset($_GET['s']) ? $_GET['s'] : '' ?>';
       if(s!='')
         page = page+'_'+s;

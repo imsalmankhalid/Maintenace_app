@@ -278,6 +278,7 @@ if($_SESSION['login_type'] != 1)
         if (val ==1)
         { 
           $("#selaircrafts").empty();
+          createOption(document.getElementById("selaircrafts"), "", "Select an option");
           createOption(document.getElementById("selaircrafts"), "Gantt chart", "Gantt chart");
           createOption(document.getElementById("selaircrafts"), "K-8 (AJTS)", "K-8 (AJTS)");
           createOption(document.getElementById("selaircrafts"), "Super Mushak (PFT)", "Super Mushak (PFT)");
@@ -285,6 +286,7 @@ if($_SESSION['login_type'] != 1)
         }
         if (val ==2)
         {
+          createOption(document.getElementById("selaircrafts"), "", "Select an option");
           createOption(document.getElementById("selaircrafts"), "K-8 (AJTS)", "K-8 (AJTS)");
           createOption(document.getElementById("selaircrafts"), "Super Mushak (PFT)");
           createOption(document.getElementById("selaircrafts"), "T-37 (BFT)");
@@ -293,6 +295,9 @@ if($_SESSION['login_type'] != 1)
 
       document.getElementById("selaircrafts").onchange = function() {
         var val = document.getElementById("selaircrafts").value;
+        if (val === "Gantt chart") {
+          window.location.href = "index.php?page=gantt/gantt.php";
+        }
         if (val === "K-8 (AJTS)") {
           window.location.href = "index.php?page=k8";
         }
