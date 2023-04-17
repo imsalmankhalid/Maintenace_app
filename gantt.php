@@ -1,28 +1,9 @@
 <?php include'db_connect.php' ?>
-  <div class="col-md-12">
-    <div id="chart_div"></div>
-</div>
-<?php
-    $where = "";
-    if($_SESSION['login_type'] == 2){
-      $where = " where manager_id = '{$_SESSION['login_id']}' ";
-    }elseif($_SESSION['login_type'] == 3){
-      $where = " where concat('[',REPLACE(user_ids,',','],['),']') LIKE '%[{$_SESSION['login_id']}]%' ";
-    }
-    $qry = $conn->query("SELECT * FROM project_list $where order by name asc");
-  ?>
-  <label for="project-dropdown">Select a Project:</label>
-  <select id="project-dropdown" onchange="loadGanttChart()">
-    <?php while ($row = $result->fetch_assoc()) { ?>
-      <option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
-    <?php } ?>
-  </select>
-  <script>
-    loadGanttChart(); // call the function after the drop-down is loaded
-  </script>
 
 
-  <script>
+
+
+<script>
 function loadGanttChart() {
   
     google.charts.load('current', {'packages':['gantt']});
@@ -88,3 +69,27 @@ function loadGanttChart() {
     }
 }
   </script>
+
+
+  <div class="col-md-12">
+  <?php
+    $where = "";
+    if($_SESSION['login_type'] == 2){
+      $where = " where manager_id = '{$_SESSION['login_id']}' ";
+    }elseif($_SESSION['login_type'] == 3){
+      $where = " where concat('[',REPLACE(user_ids,',','],['),']') LIKE '%[{$_SESSION['login_id']}]%' ";
+    }
+    $result = $conn->query("SELECT * FROM project_list $where order by name asc");
+  ?>
+  <label for="project-dropdown">Select a Project:</label>
+  <select id="project-dropdown" onchange="loadGanttChart()">
+    <?php while ($row = $result->fetch_assoc()) { ?>
+      <option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
+    <?php } ?>
+  </select>
+  <script>
+    loadGanttChart(); // call the function after the drop-down is loaded
+  </script>
+    <div id="chart_div"></div>
+</div>
+

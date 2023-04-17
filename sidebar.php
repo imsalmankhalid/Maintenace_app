@@ -46,6 +46,12 @@
                   <p>Task</p>
                 </a>
           </li>
+          <li class="nav-item">
+            <a href="./index.php?page=gantt" class="nav-link nav-gantt_chart">
+              <i class="far fa-chart-bar nav-icon"></i>
+              <p>Gantt Chart</p>
+            </a>
+          </li>
            <li class="nav-item">
                 <a href="./index.php?page=reports" class="nav-link nav-reports">
                   <i class="fas fa-th-list nav-icon"></i>
