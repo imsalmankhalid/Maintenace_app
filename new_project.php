@@ -94,6 +94,7 @@
 </div>
 <script>
 	$('#manage-project').submit(function(e){
+		
 		e.preventDefault()
 		start_load()
 		$.ajax({

@@ -58,6 +58,56 @@
                   <p>Report</p>
                 </a>
           </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link nav-edit_project nav-view_project">
+              <i class="nav-icon fas fa-layer-group"></i>
+              <p>
+                Maintenance Databe
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+
+              <li class="nav-item">
+              <a href="./index.php?page=add_aircraft" class="nav-link add_aircraft">
+                  <i class="fas fa-angle-right nav-icon"></i>
+                  <p>Register Aircraft for Maintenance</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="./index.php?page=maint_list" class="nav-link nav-project_list tree-item">
+                  <i class="fas fa-angle-right nav-icon"></i>
+                  <p>List of Aircrafts</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="./index.php?page=add_maint_log" class="nav-link nav-project_list tree-item">
+                  <i class="fas fa-angle-right nav-icon"></i>
+                  <p>Add Maintenance Work</p>
+                </a>
+              </li>
+            </ul>
+          </li> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <li class="nav-item">
+          <a href="./index.php?page=add_aircraft" class="nav-link add_aircraftt">
+          <i class="fas fa-list nav-icon"></i>
+            <p>Staggering Database</p>
+          </a>
+        </li>
           <?php if($_SESSION['login_type'] == 1): ?>
           <li class="nav-item">
             <a href="#" class="nav-link nav-edit_user">

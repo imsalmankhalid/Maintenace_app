@@ -86,5 +86,11 @@ if($action == 'save_base'){
 	if($get)
 		echo $get;
 }
+
+if($action == 'add_aircraft_maint'){
+	$get = $crud->add_aircraft_maint();
+	echo $get;
+}
+
 ob_end_flush();
 ?>

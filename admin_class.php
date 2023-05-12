@@ -396,4 +396,57 @@ Class Action {
 		}
 		return $data;
 	}
+
+	function add_aircraft_maint(){
+		
+		$project_name = $_POST['aircraft']."_".$_POST['tail_number'];
+		$startdate = $_POST['start_date'];
+		$contents = file_get_contents('aircraft_maint_data.txt');
+		eval($contents);
+
+		if (isset($phase_arrays[$_POST['aircraft']][$_POST['hours']])) {
+			$phases_tasks =  $phase_arrays[$_POST['aircraft']][$_POST['hours']];
+		}
+		else {
+			echo "Aircraft Maintenance data does not exists for ".$_POST['aircraft']. "  Hours ".$_POST['hours'];
+			return 0;
+		}
+
+		// Check if project name already exists
+		$sql_check = "SELECT * FROM project_tasks WHERE project_name = '$project_name'";
+		$result_check = $save = $this->db->query($sql_check);
+		
+		if ($result_check->num_rows > 0) {
+			echo "Project name already exists!";
+			return 0;
+		} else {
+			$enddate = "";
+			// Insert data into table
+			foreach ($phases_tasks as $pt) {
+				$phase = $pt[0];
+				$task = $pt[1];
+				$trade = $pt[2];
+				$duration = $pt[3];
+				$change = $pt[4];
+				if($change == 1) {
+					if($enddate != "")
+						$startdate = $enddate;
+				}
+				if($duration != "") {
+					$enddate = date('Y-m-d', strtotime($startdate . ' + ' . $duration . ' days'));
+				}
+			
+				$sql_insert = "INSERT INTO project_tasks (project_name, phase_name, task_name, trade, start_date, end_date, duration, completed_duration) VALUES ('$project_name', '$phase', '$task', '$trade', '$startdate', '$enddate', '$duration', '0')";
+				$result_check = $save = $this->db->query($sql_insert);
+
+
+				if(!$result_check) {
+					echo "Error: " . mysqli_error($this->db);
+					return 0;
+				}
+			
+			}
+			return 1;
+		}
+	}
 }

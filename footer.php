@@ -86,12 +86,12 @@
 	     $('#confirm_modal .modal-body').html($msg)
 	     $('#confirm_modal').modal('show')
 	  }
-	   window.alert_toast= function($msg = 'TEST',$bg = 'success' ,$pos=''){
+	   window.alert_toast= function($msg = 'TEST',$bg = 'success' ,$dur=5000, $pos=''){
 	   	 var Toast = Swal.mixin({
 	      toast: true,
 	      position: $pos || 'top-end',
 	      showConfirmButton: false,
-	      timer: 5000
+	      timer: $dur
 	    });
 	      Toast.fire({
 	        icon: $bg,
