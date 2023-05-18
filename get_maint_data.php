@@ -19,7 +19,7 @@ while ($row = $result->fetch_assoc()) {
         "start" => date('Y-m-d', strtotime($row["start_date"])),
         "end" => date('Y-m-d', strtotime($row["end_date"])),
         "duration" => intval($row["duration"]),
-        "Percent" => floatval($row["completed_duration"]),
+        "Percent" => floatval(($row["completed_duration"] / $row["duration"]) * 100),
         "dep" =>'None',
     );
 

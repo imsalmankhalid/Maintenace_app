@@ -33,7 +33,7 @@ function loadGanttChart() {
       const dataArray = JSON.parse(jsonData);
       
        for (var i = 0; i < dataArray.length; i++) {
-        //console.log(dataArray[i]);
+        console.log(dataArray[i]);
             data.addRow([    dataArray[i].id,
                 dataArray[i].name,
                 new Date(dataArray[i].start),

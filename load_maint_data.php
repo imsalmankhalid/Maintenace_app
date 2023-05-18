@@ -32,8 +32,14 @@ include 'db_connect.php';
 
     if(isset($_REQUEST['project_name']) && isset($_REQUEST['phase_name']) && isset($_REQUEST['task_name']) && isset($_REQUEST['duration'])){
         $where = "WHERE project_name = '{$_REQUEST['project_name']}' AND phase_name = '{$_REQUEST['phase_name']}' AND task_name = '{$_REQUEST['task_name']}'";
-        $qry = "UPDATE project_tasks SET completed_duration = completed_duration + 1 " . $where;
+        $qry = "UPDATE project_tasks SET completed_duration = completed_duration + 1, details = '" . $_REQUEST['details'] . "' " . $where;
+        
+        // fetch data from database
+        $qry = $conn->query($qry);
+        exit;
+
     }
+   
     // fetch data from database
     $qry = $conn->query($qry);
 

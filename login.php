@@ -29,7 +29,7 @@ header("location:index.php?page=home");
     <div class="card-body login-card-body">
       <form action="" id="login-form">
         <div class="input-group mb-3">
-          <input type="email" class="form-control" name="email" required placeholder="Email">
+          <input type="email" class="form-control" name="email" required placeholder="Email" autocomplete="username">>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-envelope"></span>
@@ -37,7 +37,7 @@ header("location:index.php?page=home");
           </div>
         </div>
         <div class="input-group mb-3">
-          <input type="password" class="form-control" name="password" required placeholder="Password">
+          <input type="password" class="form-control" name="password" required placeholder="Password" autocomplete="current-password">>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
@@ -60,11 +60,6 @@ header("location:index.php?page=home");
           <!-- /.col -->
         </div>
       </form>
-	  	<div class="row">
-			  <div class="form-group">
-			<a href="new_user.php" class="btn btn-primary btn-block">Create an account</a>
-		</div>
-	</div>
     </div>
     <!-- /.login-card-body -->
 

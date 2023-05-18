@@ -16,17 +16,19 @@
     <div class="tab-content">
       <div class="tab-pane active" id="tab1">
       <div class="embed-responsive embed-responsive-16by9">
-          <iframe class="embed-responsive-item" src="https://onedrive.live.com/embed?cid=666AF922099DC4F0&resid=666AF922099DC4F0%21111&authkey=AIxwL-J324g7e6M&em=2"></iframe>
+        
+          <iframe class="embed-responsive-item" src="https://onedrive.live.com/embed?resid=666AF922099DC4F0!111&ithint=file%2cxlsx&authkey=!AHaJqgffiSiO_KY"></iframe>
+            
         </div>
       </div>
       <div class="tab-pane" id="tab2">
       <div class="embed-responsive embed-responsive-16by9">
-          <iframe class="embed-responsive-item" src="https://onedrive.live.com/embed?cid=666AF922099DC4F0&resid=666AF922099DC4F0%21110&authkey=AGvxDBG6sA9otoY&em=2"></iframe>
+          <iframe class="embed-responsive-item" src="https://onedrive.live.com/embed?resid=666AF922099DC4F0!110&ithint=file%2cxlsx&authkey=!AM_EZ5nseZJWuwA"></iframe>
         </div>
       </div>
       <div class="tab-pane" id="tab3">
       <div class="embed-responsive embed-responsive-16by9">
-          <iframe class="embed-responsive-item" src="https://onedrive.live.com/embed?cid=666AF922099DC4F0&resid=666AF922099DC4F0%21109&authkey=AAP8v79DF_l6OwA&em=2"></iframe>
+          <iframe class="embed-responsive-item" src="https://onedrive.live.com/embed?resid=666AF922099DC4F0!109&ithint=file%2cxlsx&authkey=!AMKfPbN7NJeTUxI"></iframe>
         </div>
       </div>
     </div>

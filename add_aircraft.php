@@ -105,7 +105,7 @@
 
 <?php
     // fetch data from database
-    $qry = $conn->query("SELECT project_name, MAX(end_date) AS last_end_date FROM project_tasks GROUP BY project_name");
+    $qry = $conn->query("SELECT project_name, details,  MAX(end_date) AS last_end_date FROM project_tasks GROUP BY project_name");
 
     // initialize array to store data
     $data = array();
@@ -113,6 +113,7 @@
     // loop through each row and calculate required fields
     while ($row = $qry->fetch_assoc()) {
         $project_name = $row['project_name'];
+        $details = $row['details'];
         $last_end_date = $row['last_end_date'];
         $start_date = '';
 
@@ -152,7 +153,8 @@
             'start_date' => $start_date,
             'completion_date' => $last_end_date,
             'duration' => $duration,
-            'status' => $status
+            'status' => $status,
+            'details' => $details
         );
     }
 
@@ -160,54 +162,101 @@
 ?>
 
 
-	<div class="card card-outline card-primary">
-		<div class="card-body">
-            <div class="card card-outline card-success">
-                <div class="card-header" style="font-weight: bold; font-size: 20px;">
-                   Maintenance Aircraft List
-                </div>
-                <div class="card-body">
-                    <table class="table tabe-hover table-condensed" id="list">
-                        <colgroup>
-                            <col width="5%">
-                            <col width="35%">
-                            <col width="15%">
-                            <col width="15%">
-                            <col width="20%">
-                            <col width="10%">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th class="text-center">#</th>
-                                <th class="text-center">Aircraft Name</th>
-                                <th class="text-center">Tail ID</th>
-                                <th>Date Started</th>
-                                <th>Completion Date</th>
-                                <th>Duration</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($data as $i => $row) { ?>
-                                <tr>
-                                    <td class="text-center"><?php echo $i+1 ?></td>
-                                    <td class="text-center"><?php echo $row['aircraft_name']; ?></td>
-                                    <td class="text-center"><?php echo $row['tail_id']; ?></td>
-                                    <td><?php echo $row['start_date'] ?></td>
-                                    <td><?php echo $row['completion_date'] ?></td>
-                                    <td><?php echo $row['duration'] ?></td>
-                                    <td><?php echo $row['status'] ?>%</td>
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
+<div class="card card-outline card-primary">
+    <div class="card-body">
+        <div class="card card-outline card-success">
+            <div class="card-header" style="font-weight: bold; font-size: 20px;">
+                Maintenance Aircraft List
             </div>
-		</div>
-	</div>
+            <div class="card-body">
+                <table class="table table-hover table-condensed" id="list">
+                    <colgroup>
+                        <col width="5%">
+                        <col width="35%">
+                        <col width="15%">
+                        <col width="15%">
+                        <col width="20%">
+                        <col width="10%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th class="text-center">Aircraft Name</th>
+                            <th class="text-center">Tail ID</th>
+                            <th>Date Started</th>
+                            <th>Completion Date</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($data as $i => $row) { ?>
+                            <tr class="expandable-row">
+                                <td class="text-center"><?php echo $i + 1 ?></td>
+                                <td class="text-center"><?php echo $row['aircraft_name']; ?></td>
+                                <td class="text-center"><?php echo $row['tail_id']; ?></td>
+                                <td><?php echo $row['start_date'] ?></td>
+                                <td><?php echo $row['completion_date'] ?></td>
+                                <td><?php echo $row['duration'] ?></td>
+                                <td><?php echo $row['status'] ?>%</td>
+                            </tr>
+                            <tr class="expanded-row" style="display: none;">
+                                <td colspan="7">
+                                    <!-- Placeholder for the expanded table -->
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 <script>
+
+$(document).ready(function () {
+    $('.expandable-row').click(function () {
+        var expandedRow = $(this).next('.expanded-row');
+
+        if (expandedRow.is(':visible')) {
+            expandedRow.hide();
+        } else {
+            // Remove the previous expanded rows to ensure only one expanded row is visible at a time
+            $('.expanded-row').hide();
+
+            // Generate the content for the expanded table based on the clicked row's data
+            var rowData = $(this).find('td').map(function () {
+                return $(this).text();
+            }).get();
+
+            // Create the expanded table with the desired content
+            var expandedTable = $('<table>').addClass('table table-hover table-condensed');
+            var headers = ['Header 1', 'Header 2', 'Header 3']; // Replace with your actual header names
+
+            // Create table headers
+            var headerRow = $('<tr>');
+            headers.forEach(function (header) {
+                headerRow.append($('<th>').text(header));
+            });
+            expandedTable.append(headerRow);
+
+            // Create table rows
+            var dataRow = $('<tr>');
+            rowData.forEach(function (data) {
+                dataRow.append($('<td>').text(data));
+            });
+            expandedTable.append(dataRow);
+
+            // Replace the placeholder with the generated expanded table
+            expandedRow.find('td').html(expandedTable);
+            expandedRow.show();
+        }
+    });
+});
+
     document.addEventListener("DOMContentLoaded", function() {
         const inspectionTypeSelect = document.getElementById("inspection_type");
         const scheduledInspectionDiv = document.getElementById("scheduled_inspection");

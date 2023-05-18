@@ -1,4 +1,4 @@
-<?php if(!isset($conn)){ include 'db_connect.php'; } ?>
+<?php  include 'db_connect.php';  ?>
 <div class="col-lg-12">
 	<div class="card">
 		<div class="card-body">

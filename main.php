@@ -4,6 +4,9 @@ $twhere ="";
 if($_SESSION['login_type'] != 1)
   $twhere = "  ";
 ?>
+<header>
+<link rel="stylesheet" href="orgchart.css" type="text/css" />
+</header>
 <!-- Info boxes -->
  <div class="col-12">
           <div class="card">
@@ -279,7 +282,6 @@ if($_SESSION['login_type'] != 1)
         { 
           $("#selaircrafts").empty();
           createOption(document.getElementById("selaircrafts"), "", "Select an option");
-          createOption(document.getElementById("selaircrafts"), "Gantt chart", "Gantt chart");
           createOption(document.getElementById("selaircrafts"), "K-8 (AJTS)", "K-8 (AJTS)");
           createOption(document.getElementById("selaircrafts"), "Super Mushak (PFT)", "Super Mushak (PFT)");
           createOption(document.getElementById("selaircrafts"), "T-37 (BFT)", "T-37 (BFT)");
@@ -288,24 +290,38 @@ if($_SESSION['login_type'] != 1)
         {
           createOption(document.getElementById("selaircrafts"), "", "Select an option");
           createOption(document.getElementById("selaircrafts"), "K-8 (AJTS)", "K-8 (AJTS)");
-          createOption(document.getElementById("selaircrafts"), "Super Mushak (PFT)");
-          createOption(document.getElementById("selaircrafts"), "T-37 (BFT)");
+          createOption(document.getElementById("selaircrafts"), "Super Mushak (PFT)", "Super Mushak (PFT)");
+          createOption(document.getElementById("selaircrafts"), "T-37 (BFT)", "T-37 (BFT)");
         }
       };
 
       document.getElementById("selaircrafts").onchange = function() {
-        var val = document.getElementById("selaircrafts").value;
-        if (val === "Gantt chart") {
-          window.location.href = "index.php?page=gantt/gantt.php";
+        var dbs = document.getElementById("seldb").selectedIndex;
+        if(dbs === 1)
+        {
+            var val = document.getElementById("selaircrafts").value;
+            if (val === "K-8 (AJTS)") {
+              window.location.href = "index.php?page=k8";
+            }
+            if (val === "Super Mushak (PFT)") {
+              window.location.href = "index.php?page=msk";
+            }
+            if (val === "T-37 (BFT)") {
+              window.location.href = "index.php?page=t37";
+            }
         }
-        if (val === "K-8 (AJTS)") {
-          window.location.href = "index.php?page=k8";
-        }
-        if (val === "Super Mushak (PFT)") {
-          window.location.href = "index.php?page=msk";
-        }
-        if (val === "T-37 (BFT)") {
-          window.location.href = "index.php?page=t37";
+        if(dbs === 2)
+        {
+            var val = document.getElementById("selaircrafts").value;
+            if (val === "K-8 (AJTS)") {
+              window.location.href = "index.php?page=K8_stg";
+            }
+            if (val === "Super Mushak (PFT)") {
+              window.location.href = "index.php?page=Smk_stg";
+            }
+            if (val === "T-37 (BFT)") {
+              window.location.href = "index.php?page=T37_stg";
+            }
         }
       };
    </script>

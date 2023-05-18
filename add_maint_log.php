@@ -42,6 +42,10 @@
         <div class="form-group">
             <div class="row">
                 <div class="col">
+                    <label for="task_start">Task ID:</label>
+                    <input type="text" class="form-control" id="task_id" name="task_id" readonly>
+                </div>
+                <div class="col">
                     <label for="task_start">Task Start Date:</label>
                     <input type="text" class="form-control" id="task_start" name="task_start" readonly>
                 </div>
@@ -60,6 +64,19 @@
             </div>
         </div>
         <input type="hidden" id="user_id" name="user_id" value="1">
+        <div class="form-group">
+    <div class="row">
+        <div class="col-sm-3">    
+            <label for="days">Select Days to log:</label>
+            <select class="form-control" id="days" name="days"></select>
+        </div>
+        <div class="col">
+            <label for="details">Details:</label>
+            <input type="text" class="form-control" id="details" name="details">
+        </div>
+    </div>
+</div>
+
         <button type="submit" class="btn btn-primary" id="log-task-button">Log Task for Today</button>
     </form>
 </div>
@@ -159,10 +176,16 @@
 					success: function(data){
                         console.log(data);
                         data = JSON.parse(data)[0];
+                        $("#task_id").val(data.id);
                         $("#task_duration").val(data.duration);
                         $("#task_start").val(data.start_date);
                         $("#task_end").val(data.end_date);
                         $("#task_remain_duration").val(data.duration - data.completed_duration);
+                        var options = "<option>Select Days to Log</option>";
+                        for (var i = 1; i <= data.duration; i++) {
+                            options += "<option value='" + i + "'>" + i + "</option>";
+                        }
+                        $("#days").html(options);
 					}
 				});
 			});
@@ -182,6 +205,7 @@
                     var project_name = $("#tail_id").val();
                     var phase_name = $("#phase_name").val();
                     var task_name = $("#task_name").val();
+                    var details = $("#details").val();
                     if($("#task_remain_duration").val() == 0)
                     {
                         alert_toast("Task already completed", "error");
@@ -191,7 +215,7 @@
                     $.ajax({
 					url: "load_maint_data.php",
 					type: "POST",
-					data: {project_name: project_name, phase_name: phase_name, task_name: task_name, duration:0},
+					data: {project_name: project_name, phase_name: phase_name, task_name: task_name, duration:0, details:details},
 					success: function(data){
                         console.log(data);
                         alert_toast("Task updated", "success");

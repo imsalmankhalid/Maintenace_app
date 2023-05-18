@@ -13,12 +13,12 @@
     <div class="tab-content">
       <div class="tab-pane active" id="maintenance">
         <div class="embed-responsive embed-responsive-16by9">
-          <iframe class="embed-responsive-item" src="https://onedrive.live.com/embed?cid=666AF922099DC4F0&resid=666AF922099DC4F0%21107&authkey=ADFbDHKWIKov6YQ&em=2"></iframe>
+        <iframe src="https://onedrive.live.com/embed?resid=666AF922099DC4F0!107&ithint=file%2cxlsx&authkey=!ANnffDDXNiA9I8A" width="100%" height="500px"></iframe>
         </div>
       </div>
       <div class="tab-pane" id="aircraft-state">
         <div class="embed-responsive embed-responsive-16by9">
-          <iframe class="embed-responsive-item" src="https://onedrive.live.com/embed?cid=666AF922099DC4F0&resid=666AF922099DC4F0%21108&authkey=ANhW7BbtTxX01fQ&em=2"></iframe>
+          <iframe src="https://onedrive.live.com/embed?resid=666AF922099DC4F0!108&ithint=file%2cxlsx&authkey=!AAqVQ_86d6ChkL0" width="100%" height="500px"></iframe>
         </div>
       </div>
     </div>
