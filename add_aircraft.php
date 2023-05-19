@@ -24,11 +24,16 @@
         return '<option value="' . $aircraft_name . '">' . $aircraft_name . '</option>';
     }, $aircraft_array));
 
-    // Generate the HTML for the hours select options
-    $hours_options = '';
-    foreach ($hours_array as $hours_value) {
-        $hours_options .= '<option value="' . $hours_value . '">' . $hours_value . '</option>';
+    $aircraft_hours = array();
+
+    // Extract array subscript names
+    foreach ($phase_arrays as $aircraft => $hours_array) {
+        $hours = array_keys($hours_array);
+        $aircraft_hours[$aircraft] = $hours;
     }
+    
+    // Convert to JSON array
+    $json_array = json_encode($aircraft_hours);
 ?>
 
 
@@ -36,18 +41,16 @@
 	<div class="card card-outline card-primary">
 		<div class="card-body">
 			<form action="" id="addAircraft">
-                <div class="form-group row mb-3">
-                    <label for="aircraft" class="col-sm-2 col-form-label">Aircraft:</label>
-                    <div class="col-sm-10">
+            <div class="form-group row mb-3">
+            <label for="aircraft" class="col-sm-2 col-form-label">Aircraft:</label>
+                <div class="col-sm-10">
                     <select id="aircraft" name="aircraft" class="form-control">
                         <option value="">-- Select an aircraft --</option>
-                        <option value="K8">K-8 (AJTS)</option>
-                        <option value="SMK">Super Mushak (PFT)</option>
-                        <option value="T37">T-37 (BFT)</option>
-                        <!-- Add more aircraft options here -->
+                        <?php echo $aircraft_options; ?>
                     </select>
-                    </div>
                 </div>
+            </div>
+
 
                 <div class="form-group row mb-3">
                     <label for="tail_number" class="col-sm-2 col-form-label">Tail Number:</label>
@@ -85,13 +88,19 @@
                 </div>
 
                 <div id="unscheduled_inspection" style="display:none;">
-                    <div class="form-group row mb-3">
+                <div class="form-group row mb-3">
                     <label for="details" class="col-sm-2 col-form-label">Details:</label>
                     <div class="col-sm-10">
                         <textarea id="details" name="details" class="form-control"></textarea>
                     </div>
+                </div>
+                <div class="form-group row mb-3">
+                    <label for="exp_date" class="col-sm-2 col-form-label">Expected Completion Date:</label>
+                    <div class="col-sm-10">
+                        <input type="date" id="exp_date" name="exp_date" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>" required>
                     </div>
                 </div>
+            </div>
 
                 <div class="form-group row">
                     <div class="col-sm-10 offset-sm-2">
@@ -105,7 +114,7 @@
 
 <?php
     // fetch data from database
-    $qry = $conn->query("SELECT project_name, details,  MAX(end_date) AS last_end_date FROM project_tasks GROUP BY project_name");
+    $qry = $conn->query("SELECT project_name, details,inspectionType,  MAX(end_date) AS last_end_date FROM project_tasks GROUP BY project_name");
 
     // initialize array to store data
     $data = array();
@@ -115,7 +124,9 @@
         $project_name = $row['project_name'];
         $details = $row['details'];
         $last_end_date = $row['last_end_date'];
+        $inspectionType = $row['inspectionType'];
         $start_date = '';
+        $flyingdate = '';
 
         // fetch the start date for the project
         $result = $conn->query("SELECT start_date FROM project_tasks WHERE project_name = '$project_name' ORDER BY start_date ASC LIMIT 1");
@@ -132,10 +143,15 @@
         $result = $conn->query("SELECT SUM(completed_duration) AS total_completed_duration FROM project_tasks WHERE project_name = '$project_name'");
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
-            if ($row['total_completed_duration'] === null) {
+            if ($row['total_completed_duration'] === null ) {
                 $status = 0;
             } else {
-                $status = round($row['total_completed_duration'] / $duration * 100);
+                if($duration > 0)
+                {
+                    $status = round($row['total_completed_duration'] / $duration * 100);
+                    if($status == 100)
+                        $flyingdate = new DateTime();
+                }
             }
         } else {
             $status = 0;
@@ -154,6 +170,8 @@
             'completion_date' => $last_end_date,
             'duration' => $duration,
             'status' => $status,
+            'flydate' => $flyingdate,
+            'inspectionType' => $inspectionType,
             'details' => $details
         );
     }
@@ -162,54 +180,52 @@
 ?>
 
 
-<div class="card card-outline card-primary">
+<div class="card card-outline card-success">
     <div class="card-body">
-        <div class="card card-outline card-success">
             <div class="card-header" style="font-weight: bold; font-size: 20px;">
                 Maintenance Aircraft List
             </div>
             <div class="card-body">
+                <input type="text" id="search-input" class="form-control mb-3" placeholder="Search">
                 <table class="table table-hover table-condensed" id="list">
-                    <colgroup>
-                        <col width="5%">
-                        <col width="35%">
-                        <col width="15%">
-                        <col width="15%">
-                        <col width="20%">
-                        <col width="10%">
-                    </colgroup>
                     <thead>
                         <tr>
                             <th class="text-center">#</th>
                             <th class="text-center">Aircraft Name</th>
                             <th class="text-center">Tail ID</th>
+                            <th class="text-center">Inspection Type</th>
                             <th>Date Started</th>
-                            <th>Completion Date</th>
+                            <th>Expected Completion Date</th>
                             <th>Duration</th>
                             <th>Status</th>
+                            <th>Details</th>
+                            <th>Actual Flying date</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($data as $i => $row) { ?>
-                            <tr class="expandable-row">
+                            <tr >
                                 <td class="text-center"><?php echo $i + 1 ?></td>
                                 <td class="text-center"><?php echo $row['aircraft_name']; ?></td>
                                 <td class="text-center"><?php echo $row['tail_id']; ?></td>
+                                <td class="text-center"><?php echo $row['inspectionType']; ?></td>
                                 <td><?php echo $row['start_date'] ?></td>
                                 <td><?php echo $row['completion_date'] ?></td>
                                 <td><?php echo $row['duration'] ?></td>
                                 <td><?php echo $row['status'] ?>%</td>
-                            </tr>
-                            <tr class="expanded-row" style="display: none;">
-                                <td colspan="7">
-                                    <!-- Placeholder for the expanded table -->
+                                <td><?php echo $row['details'] ?></td>
+                                <td><?php echo $row['flydate'] ?></td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm delete-btn" data-row='<?php echo json_encode($row); ?>'>
+                                        Delete
+                                    </button>
                                 </td>
                             </tr>
                         <?php } ?>
                     </tbody>
                 </table>
             </div>
-        </div>
     </div>
 </div>
 
@@ -218,42 +234,37 @@
 <script>
 
 $(document).ready(function () {
-    $('.expandable-row').click(function () {
-        var expandedRow = $(this).next('.expanded-row');
+    console.log(<?php echo json_encode($json_array); ?>);
+    $(".delete-btn").click(function () {
+        // Get the row data from the data attribute
+        var rowData = $(this).data("row");
 
-        if (expandedRow.is(':visible')) {
-            expandedRow.hide();
-        } else {
-            // Remove the previous expanded rows to ensure only one expanded row is visible at a time
-            $('.expanded-row').hide();
+        // Construct the project name
+        var project_name = rowData.aircraft_name + "_" + rowData.tail_id;
 
-            // Generate the content for the expanded table based on the clicked row's data
-            var rowData = $(this).find('td').map(function () {
-                return $(this).text();
-            }).get();
-
-            // Create the expanded table with the desired content
-            var expandedTable = $('<table>').addClass('table table-hover table-condensed');
-            var headers = ['Header 1', 'Header 2', 'Header 3']; // Replace with your actual header names
-
-            // Create table headers
-            var headerRow = $('<tr>');
-            headers.forEach(function (header) {
-                headerRow.append($('<th>').text(header));
-            });
-            expandedTable.append(headerRow);
-
-            // Create table rows
-            var dataRow = $('<tr>');
-            rowData.forEach(function (data) {
-                dataRow.append($('<td>').text(data));
-            });
-            expandedTable.append(dataRow);
-
-            // Replace the placeholder with the generated expanded table
-            expandedRow.find('td').html(expandedTable);
-            expandedRow.show();
-        }
+        // Send AJAX POST request to the specified URL
+        $.ajax({
+            url:'ajax.php?action=add_aircraft_maint',
+            type: "POST",
+            data: {
+                req: "delete",
+                project_name: project_name
+            },
+            success: function (response) {
+                if (response == 1) {
+                    alert_toast('Delete successful', "success");
+                    setTimeout(function () {
+                        location.href = 'index.php?page=add_aircraft';
+                    }, 2000);
+                } else {
+                    alert_toast(response, "error", 5000);
+                }
+            },
+            error: function (xhr, status, error) {
+                // Handle error
+                alert("An error occurred while processing the delete request");
+            }
+        });
     });
 });
 
@@ -272,23 +283,24 @@ $(document).ready(function () {
         });
     });
 
-    $("#aircraft").change(function(){
+    // Filter table rows based on search term
+    $("#search-input").on("keyup", function() {
+        var searchTerm = $(this).val().toLowerCase();
+        $("#list tbody tr").each(function() {
+            var $row = $(this);
+            var rowData = $row.text().toLowerCase();
+            if (rowData.indexOf(searchTerm) === -1) {
+                $row.hide();
+            } else {
+                $row.show();
+            }
+        });
+    });
+
+    $("#aircraft").change(function() {
         var aircraft = $(this).val();
-        var options = [];
-        
-        switch (aircraft) {
-            case "SMK":
-                options = ["100", "400"];
-                break;
-            case "K8":
-                options = ["500", "100", "1500"];
-                break;
-            case "T37":
-                options = ["500", "1000"];
-                break;
-            default:
-                break;
-        }
+        var aircraftHours = <?php echo $json_array; ?>;
+        var options = aircraftHours[aircraft] || [];
         
         var optionsHtml = "";
         for (var i = 0; i < options.length; i++) {
@@ -299,7 +311,6 @@ $(document).ready(function () {
     });
 
 
-
     $('#addAircraft').submit(function(e){
         e.preventDefault(); // Prevent form submission
         var aircraft = $('#aircraft').val();
@@ -308,16 +319,19 @@ $(document).ready(function () {
         var hours = $('#hours').val();
         var start_date = $('#start_date').val();
         var details = $('#details').val();
+        var exp_date = $('#exp_date').val();
         console.log(hours);
         $.ajax({
             url:'ajax.php?action=add_aircraft_maint',
             data: {
+                req: "",
                 aircraft: aircraft,
                 tail_number: tail_number,
                 inspection_type: inspection_type,
                 hours: hours,
                 start_date: start_date,
-                details: details
+                details: details,
+                exp_date:exp_date
             },
             method: 'POST',
             success:function(resp){
@@ -325,7 +339,7 @@ $(document).ready(function () {
                 if(resp == 1){
                     alert_toast('Data successfully saved',"success");
                     setTimeout(function(){
-                        location.href = 'index.php?page=maint_list'
+                        location.href = 'index.php?page=add_aircraft'
                     },2000)
                 }
                 else

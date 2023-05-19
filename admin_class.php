@@ -142,7 +142,6 @@ Class Action {
 		$data = "";
 		foreach($_POST as $k => $v){
 			if(!in_array($k, array('id','cpass','table','password')) && !is_numeric($k)){
-				
 				if(empty($data)){
 					$data .= " $k='$v' ";
 				}else{
@@ -398,9 +397,26 @@ Class Action {
 	}
 
 	function add_aircraft_maint(){
+
+		if ($_POST['req'] == 'delete') {
+			// Handle delete request
+			$project_name = $_POST['project_name'];
+	
+			// Perform delete operation based on the project name
+			$sql_delete = "DELETE FROM project_tasks WHERE project_name = '$project_name'";
+			$result_delete = $save = $this->db->query($sql_delete);
+	
+			if ($result_delete) {
+				return 1;
+			} else {
+				echo "Error: " . mysqli_error($this->db);
+				return 1;
+			}
+		} 
 		
 		$project_name = $_POST['aircraft']."_".$_POST['tail_number'];
 		$startdate = $_POST['start_date'];
+		$inspection_type = $_POST['inspection_type'];
 		$contents = file_get_contents('aircraft_maint_data.txt');
 		eval($contents);
 
@@ -420,33 +436,45 @@ Class Action {
 			echo "Project name already exists!";
 			return 0;
 		} else {
-			$enddate = "";
-			// Insert data into table
-			foreach ($phases_tasks as $pt) {
-				$phase = $pt[0];
-				$task = $pt[1];
-				$trade = $pt[2];
-				$duration = $pt[3];
-				$change = $pt[4];
-				if($change == 1) {
-					if($enddate != "")
-						$startdate = $enddate;
+			if($inspection_type == "scheduled")
+			{
+				$enddate = "";
+				// Insert data into table
+				foreach ($phases_tasks as $pt) {
+					$phase = $pt[0];
+					$task = $pt[1];
+					$trade = $pt[2];
+					$duration = ($pt[3]);
+					$change = $pt[4];
+					if($change == 1) {
+						if($enddate != "")
+							$startdate = $enddate;
+					}
+					if($duration != "") {
+						$enddate = date('Y-m-d', strtotime($startdate . ' + ' . ($duration) . ' days'));
+					}
+				
+					$sql_insert = "INSERT INTO project_tasks (project_name, phase_name, task_name, trade, start_date, end_date, duration, completed_duration, inspectionType) VALUES ('$project_name', '$phase', '$task', '$trade', '$startdate', '$enddate', '$duration', '0', '$inspection_type')";
+					$result_check = $this->db->query($sql_insert);
+					if(!$result_check) {
+						echo "Error: " . mysqli_error($this->db);
+						return 0;
+					}
 				}
-				if($duration != "") {
-					$enddate = date('Y-m-d', strtotime($startdate . ' + ' . $duration . ' days'));
-				}
-			
-				$sql_insert = "INSERT INTO project_tasks (project_name, phase_name, task_name, trade, start_date, end_date, duration, completed_duration) VALUES ('$project_name', '$phase', '$task', '$trade', '$startdate', '$enddate', '$duration', '0')";
-				$result_check = $save = $this->db->query($sql_insert);
-
-
+				return 1;
+			}
+			else
+			{
+				$enddate = $_POST['exp_date'];
+				$details = $_POST['details'];
+				$sql_insert = "INSERT INTO project_tasks (project_name, phase_name, task_name, trade, start_date, end_date, duration, completed_duration, inspectionType, details) VALUES ('$project_name', '', '', '', '$startdate', '$enddate', '0', '0', '$inspection_type', '$details')";
+				$result_check = $this->db->query($sql_insert);
 				if(!$result_check) {
 					echo "Error: " . mysqli_error($this->db);
 					return 0;
 				}
-			
+				return 1;
 			}
-			return 1;
 		}
 	}
 }

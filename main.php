@@ -288,6 +288,7 @@ if($_SESSION['login_type'] != 1)
         }
         if (val ==2)
         {
+          $("#selaircrafts").empty();
           createOption(document.getElementById("selaircrafts"), "", "Select an option");
           createOption(document.getElementById("selaircrafts"), "K-8 (AJTS)", "K-8 (AJTS)");
           createOption(document.getElementById("selaircrafts"), "Super Mushak (PFT)", "Super Mushak (PFT)");
