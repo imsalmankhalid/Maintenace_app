@@ -62,7 +62,7 @@
             <a href="#" class="nav-link nav-edit_project nav-view_project">
               <i class="nav-icon fas fa-layer-group"></i>
               <p>
-                Maintenance Databe
+                Maintenance Database
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
@@ -89,21 +89,8 @@
             </ul>
           </li> 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
         <li class="nav-item">
-          <a href="./index.php?page=add_aircraft" class="nav-link add_aircraftt">
+          <a href="./index.php?page=add_aircraft_stg" class="nav-link add_aircraftt">
           <i class="fas fa-list nav-icon"></i>
             <p>Staggering Database</p>
           </a>

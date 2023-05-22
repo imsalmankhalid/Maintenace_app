@@ -417,16 +417,6 @@ Class Action {
 		$project_name = $_POST['aircraft']."_".$_POST['tail_number'];
 		$startdate = $_POST['start_date'];
 		$inspection_type = $_POST['inspection_type'];
-		$contents = file_get_contents('aircraft_maint_data.txt');
-		eval($contents);
-
-		if (isset($phase_arrays[$_POST['aircraft']][$_POST['hours']])) {
-			$phases_tasks =  $phase_arrays[$_POST['aircraft']][$_POST['hours']];
-		}
-		else {
-			echo "Aircraft Maintenance data does not exists for ".$_POST['aircraft']. "  Hours ".$_POST['hours'];
-			return 0;
-		}
 
 		// Check if project name already exists
 		$sql_check = "SELECT * FROM project_tasks WHERE project_name = '$project_name'";
@@ -436,6 +426,30 @@ Class Action {
 			echo "Project name already exists!";
 			return 0;
 		} else {
+			if ($_POST['req'] == 'stg') {
+				$enddate = $_POST['exp_date'];
+				$details = $_POST['details'];
+				$sql_insert = "INSERT INTO project_tasks (project_name, phase_name, task_name, trade, start_date, end_date, duration, completed_duration, inspectionType, details) VALUES ('$project_name', 'stg', '', '', '$startdate', '$enddate', '0', '0', '$inspection_type', '$details\n')";
+				$result_check = $this->db->query($sql_insert);
+				if(!$result_check) {
+					echo "Error: " . mysqli_error($this->db);
+					return 0;
+				}
+				return 1;
+			}
+
+			$contents = file_get_contents('aircraft_maint_data.txt');
+			eval($contents);
+	
+			if (isset($phase_arrays[$_POST['aircraft']][$_POST['hours']])) {
+				$phases_tasks =  $phase_arrays[$_POST['aircraft']][$_POST['hours']];
+			}
+			else {
+				echo "Aircraft Maintenance data does not exists for ".$_POST['aircraft']. "  Hours ".$_POST['hours'];
+				return 0;
+			}
+
+			
 			if($inspection_type == "scheduled")
 			{
 				$enddate = "";

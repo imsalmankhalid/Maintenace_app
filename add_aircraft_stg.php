@@ -36,13 +36,13 @@
     $json_array = json_encode($aircraft_hours);
 ?>
 
-
+<div class="row">
 <div class="col-md-8">
 	<div class="card card-outline card-primary">
 		<div class="card-body">
         <div class="card-header" style="font-weight: bold; font-size: 20px;">
-                Maintenance Database
-            </div>
+                Staggering Database
+        </div>
 			<form action="" id="addAircraft">
             <div class="form-group row mb-3">
             <label for="aircraft" class="col-sm-2 col-form-label">Aircraft:</label>
@@ -67,34 +67,23 @@
                     <div class="col-sm-10">
                     <select id="inspection_type" name="inspection_type" class="form-control">
                         <option value="">-- Select an inspection type --</option>
-                        <option value="scheduled">Scheduled</option>
-                        <option value="unscheduled">Unscheduled</option>
+                        <option value="scheduled">Flying</option>
+                        <option value="unscheduled">Maintenance</option>
+                        <option value="unscheduled">Other</option>
                     </select>
                     </div>
                 </div>
 
-                <div id="scheduled_inspection" style="display:none;">
-                    <div class="form-group row mb-3">
-                    <label for="hours" class="col-sm-2 col-form-label">Number of Hours:</label>
-                    <div class="col-sm-10">
-                        <select id="hours" name="hours" class="form-control">
-                        <option value="">-- Select number of hours --</option>
-                        </select>
-                    </div>
-                    </div>
-                    <div class="form-group row mb-3">
-                        <label for="start_date" class="col-sm-2 col-form-label">Start Date:</label>
-                        <div class="col-sm-10">
-                            <input type="date" id="start_date" name="start_date" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>" required>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="unscheduled_inspection" style="display:none;">
                 <div class="form-group row mb-3">
                     <label for="details" class="col-sm-2 col-form-label">Details:</label>
                     <div class="col-sm-10">
                         <textarea id="details" name="details" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="form-group row mb-3">
+                    <label for="start_date" class="col-sm-2 col-form-label">Start Date:</label>
+                    <div class="col-sm-10">
+                        <input type="date" id="start_date" name="start_date" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>" required>
                     </div>
                 </div>
                 <div class="form-group row mb-3">
@@ -103,7 +92,6 @@
                         <input type="date" id="exp_date" name="exp_date" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>" required>
                     </div>
                 </div>
-            </div>
 
                 <div class="form-group row">
                     <div class="col-sm-10 offset-sm-2">
@@ -115,20 +103,79 @@
 	</div>
 </div>
 
+<div class="col">
+    <div class="card card-outline card-primary">
+        <div class="card-body">
+            <div class="card-header" style="font-weight: bold; font-size: 20px;">
+                Update Status
+            </div>
+            <form action="" id="updateStatusForm" method="POST">
+                <div class="form-group">
+                    <label for="aircraftSelect">Select Aircraft:</label>
+                    <select id="aircraftSelect" name="aircraftSelect" class="form-control">
+                        <option value="">-- Select an aircraft --</option>
+                        <?php 
+                            $result = $conn->query("SELECT project_name FROM project_tasks WHERE phase_name = 'stg'");
+                            while ($row = $result->fetch_assoc()) {
+                                $projectName = $row['project_name'];
+                        ?>
+                            <option value="<?php echo $projectName; ?>"><?php echo $projectName; ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+                <div class="form-group">
+
+                    <label for="details" >Details:</label>
+                    <div class="col">
+                        <textarea id="details" name="details" class="form-control"></textarea>
+                    </div>
+
+                    <label for="status">Status:</label>
+                    <input type="number" id="status" name="status" class="form-control" min="0" max="100" required>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" type="submit" name="update">Update</button>
+                </div>
+                <?php
+                    if (isset($_POST['update'])) {
+                        $projectName = $_POST['aircraftSelect'];
+                        $status = $_POST['status'];
+                        $details = $_POST['details'];
+
+                        // Perform the update operation
+                        $updateQuery = "UPDATE project_tasks SET status = $status, details = CONCAT(details, '\n', NOW(), ': $details') WHERE project_name = '$projectName'";
+                        if ($conn->query($updateQuery)) {
+                            echo "Update successful! ";
+                        } else {
+                            echo "Update failed: " . $conn->error;
+                        }
+                    }
+                ?>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+</div>
 <?php
     // fetch data from database
-    $qry = $conn->query("SELECT phase_name, project_name, details, inspectionType, MAX(end_date) AS last_end_date FROM project_tasks WHERE phase_name != 'stg' GROUP BY project_name");
+    $qry = $conn->query("SELECT  status,phase_name, project_name, details, inspectionType, MAX(end_date) AS last_end_date FROM project_tasks WHERE phase_name = 'stg' GROUP BY project_name");
+
 
     // initialize array to store data
     $data = array();
 
     // loop through each row and calculate required fields
     while ($row = $qry->fetch_assoc()) {
-        
         $project_name = $row['project_name'];
         $details = $row['details'];
         $last_end_date = $row['last_end_date'];
         $inspectionType = $row['inspectionType'];
+        $status = $row['status'];
         $start_date = '';
         $flyingdate = '';
 
@@ -145,21 +192,6 @@
 
         // calculate percentage of duration and completed duration
         $result = $conn->query("SELECT SUM(completed_duration) AS total_completed_duration FROM project_tasks WHERE project_name = '$project_name'");
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            if ($row['total_completed_duration'] === null ) {
-                $status = 0;
-            } else {
-                if($duration > 0)
-                {
-                    $status = round($row['total_completed_duration'] / $duration * 100);
-                    if($status == 100)
-                        $flyingdate = new DateTime();
-                }
-            }
-        } else {
-            $status = 0;
-        }
 
         // split project name by underscore to get aircraft name and tail id
         $name_parts = explode('_', $project_name);
@@ -186,52 +218,54 @@
 
 <div class="card card-outline card-success">
     <div class="card-body">
-            <div class="card-header" style="font-weight: bold; font-size: 20px;">
-                Maintenance Aircraft List
-            </div>
-            <div class="card-body">
-                <input type="text" id="search-input" class="form-control mb-3" placeholder="Search">
-                <table class="table table-hover table-condensed" id="list">
-                    <thead>
-                        <tr>
-                            <th class="text-center">#</th>
-                            <th class="text-center">Aircraft Name</th>
-                            <th class="text-center">Tail ID</th>
-                            <th class="text-center">Inspection Type</th>
-                            <th>Date Started</th>
-                            <th>Expected Completion Date</th>
-                            <th>Duration</th>
-                            <th>Status</th>
-                            <th>Details</th>
-                            <th>Actual Flying date</th>
-                            <th>Action</th>
+        <div class="card-header" style="font-weight: bold; font-size: 20px;">
+            Maintenance Aircraft List
+        </div>
+        <div class="card-body">
+            <input type="text" id="search-input" class="form-control mb-3" placeholder="Search">
+            <table class="table table-hover table-condensed" id="list">
+                <thead>
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th class="text-center">Aircraft Name</th>
+                        <th class="text-center">Tail ID</th>
+                        <th class="text-center">Inspection Type</th>
+                        <th>Date Started</th>
+                        <th>Expected Completion Date</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($data as $i => $row) { ?>
+                        <tr data-toggle="collapse" data-target="#details-row-<?php echo $i + 1 ?>">
+                            <td class="text-center"><?php echo $i + 1 ?></td>
+                            <td class="text-center"><?php echo $row['aircraft_name']; ?></td>
+                            <td class="text-center"><?php echo $row['tail_id']; ?></td>
+                            <td class="text-center"><?php echo $row['inspectionType']; ?></td>
+                            <td><?php echo $row['start_date'] ?></td>
+                            <td><?php echo $row['completion_date'] ?></td>
+                            <td><?php echo $row['status'] ?>%</td>
+                            <td>
+                                <button class="btn btn-link details-toggle" data-toggle="collapse" data-target="#details-row-<?php echo $i + 1 ?>">Show Details</button>
+                                <div id="details-row-<?php echo $i + 1 ?>" class="collapse">
+                                    <?php echo $row['details'] ?>
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn btn-danger btn-sm delete-btn" data-row='<?php echo json_encode($row); ?>'>
+                                    Delete
+                                </button>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($data as $i => $row) { ?>
-                            <tr >
-                                <td class="text-center"><?php echo $i + 1 ?></td>
-                                <td class="text-center"><?php echo $row['aircraft_name']; ?></td>
-                                <td class="text-center"><?php echo $row['tail_id']; ?></td>
-                                <td class="text-center"><?php echo $row['inspectionType']; ?></td>
-                                <td><?php echo $row['start_date'] ?></td>
-                                <td><?php echo $row['completion_date'] ?></td>
-                                <td><?php echo $row['duration'] ?></td>
-                                <td><?php echo $row['status'] ?>%</td>
-                                <td><?php echo $row['details'] ?></td>
-                                <td><?php echo $row['flydate'] ?></td>
-                                <td>
-                                    <button class="btn btn-danger btn-sm delete-btn" data-row='<?php echo json_encode($row); ?>'>
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
-            </div>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
 
 
 
@@ -258,7 +292,7 @@ $(document).ready(function () {
                 if (response == 1) {
                     alert_toast('Delete successful', "success");
                     setTimeout(function () {
-                        location.href = 'index.php?page=add_aircraft';
+                        location.href = 'index.php?page=add_aircraft_stg';
                     }, 2000);
                 } else {
                     alert_toast(response, "error", 5000);
@@ -272,20 +306,6 @@ $(document).ready(function () {
     });
 });
 
-    document.addEventListener("DOMContentLoaded", function() {
-        const inspectionTypeSelect = document.getElementById("inspection_type");
-        const scheduledInspectionDiv = document.getElementById("scheduled_inspection");
-        const unscheduledInspectionDiv = document.getElementById("unscheduled_inspection");
-        inspectionTypeSelect.addEventListener("change", function() {
-            if (inspectionTypeSelect.value === "scheduled") {
-                scheduledInspectionDiv.style.display = "block";
-                unscheduledInspectionDiv.style.display = "none";
-            } else {
-                scheduledInspectionDiv.style.display = "none";
-                unscheduledInspectionDiv.style.display = "block";
-            }
-        });
-    });
 
     // Filter table rows based on search term
     $("#search-input").on("keyup", function() {
@@ -299,19 +319,6 @@ $(document).ready(function () {
                 $row.show();
             }
         });
-    });
-
-    $("#aircraft").change(function() {
-        var aircraft = $(this).val();
-        var aircraftHours = <?php echo $json_array; ?>;
-        var options = aircraftHours[aircraft] || [];
-        
-        var optionsHtml = "";
-        for (var i = 0; i < options.length; i++) {
-            optionsHtml += "<option value='" + options[i] + "'>" + options[i] + "</option>";
-        }
-        
-        $("#hours").html(optionsHtml);
     });
 
 
@@ -328,7 +335,7 @@ $(document).ready(function () {
         $.ajax({
             url:'ajax.php?action=add_aircraft_maint',
             data: {
-                req: "",
+                req: "stg",
                 aircraft: aircraft,
                 tail_number: tail_number,
                 inspection_type: inspection_type,
@@ -343,7 +350,7 @@ $(document).ready(function () {
                 if(resp == 1){
                     alert_toast('Data successfully saved',"success");
                     setTimeout(function(){
-                        location.href = 'index.php?page=add_aircraft'
+                        location.href = 'index.php?page=add_aircraft_stg'
                     },2000)
                 }
                 else
