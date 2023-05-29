@@ -46,12 +46,7 @@
                   <p>Task</p>
                 </a>
           </li>
-          <li class="nav-item">
-            <a href="./index.php?page=gantt" class="nav-link nav-gantt_chart">
-              <i class="far fa-chart-bar nav-icon"></i>
-              <p>Gantt Chart</p>
-            </a>
-          </li>
+
            <li class="nav-item">
                 <a href="./index.php?page=reports" class="nav-link nav-reports">
                   <i class="fas fa-th-list nav-icon"></i>
@@ -93,6 +88,12 @@
           <a href="./index.php?page=add_aircraft_stg" class="nav-link add_aircraftt">
           <i class="fas fa-list nav-icon"></i>
             <p>Staggering Database</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="./index.php?page=add_aircraft_stgchart" class="nav-link add_aircraftt">
+          <i class="fas fa-list nav-icon"></i>
+            <p>Staggering Charts</p>
           </a>
         </li>
           <?php if($_SESSION['login_type'] == 1): ?>

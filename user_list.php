@@ -58,21 +58,30 @@
 	_conf("Are you sure to delete this user?","delete_user",[$(this).attr('data-id')])
 	})
 	})
-	function delete_user($id){
-		start_load()
-		$.ajax({
-			url:'ajax.php?action=delete_user',
-			method:'POST',
-			data:{id:$id},
-			success:function(resp){
-				if(resp==1){
-					alert_toast("Data successfully deleted",'success')
-					setTimeout(function(){
-						location.reload()
-					},1500)
+	function delete_user(id) {
+    start_load();
+    $.ajax({
+        url: 'ajax.php?action=delete_user',
+        method: 'POST',
+        data: { id: id },
+        success: function(resp) {
+            if (resp == 1) {
+                alert_toast("Data successfully deleted", 'success');
+                setTimeout(function() {
+                    location.reload();
+                }, 1500);
+            } else {
+                alert_toast(resp, 'error');
+				setTimeout(function() {
+                    location.reload();
+                }, 1500);
+            }
+        },
+        error: function() {
+            var errorMessage = xhr.status + ': ' + xhr.statusText;
+            alert_toast("Error deleting data: " + errorMessage, 'error');
+        }
+    });
+}
 
-				}
-			}
-		})
-	}
 </script>

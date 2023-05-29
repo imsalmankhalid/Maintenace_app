@@ -97,7 +97,7 @@ if($_SESSION['login_type'] != 1)
                 <div class="card-body">
                 <div class="row">
                   <label for="" class="control-label">Select Database</label>
-                    <select class="form-control form-control-sm select2" name="user_ids[]" id="seldb">
+                    <select class="form-control form-control-sm select2" id="seldb">
                      <option></option>
                       <option>Maintenance Database</option>
                       <option>Staggering Database</option>
@@ -283,7 +283,6 @@ if($_SESSION['login_type'] != 1)
       document.getElementById("seldb").onchange = function() {
         
         var val = document.getElementById("seldb").selectedIndex;
-        console.log(val);
         if (val ==1)
         { 
           $("#selaircrafts").empty();

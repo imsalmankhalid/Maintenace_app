@@ -27,57 +27,66 @@
 	                <option>Select tail ID</option>
 	            </select>
 	    </div>
-        <div class="form-group">
-	            <label for="phase_name">Phase Name:</label>
-	            <select class="form-control" id="phase_name" name="phase_name">
-	                <option>Select Phase</option>
-	            </select>
-	    </div>
-        <div class="form-group">
-	            <label for="task_name">Task Name:</label>
-	            <select class="form-control" id="task_name" name="task_name">
-	                <option>Select Task</option>
-	            </select>
-	    </div>
-        <div class="form-group">
-            <div class="row">
-                <div class="col">
-                    <label for="task_start">Task ID:</label>
-                    <input type="text" class="form-control" id="task_id" name="task_id" readonly>
-                </div>
-                <div class="col">
-                    <label for="task_start">Task Start Date:</label>
-                    <input type="text" class="form-control" id="task_start" name="task_start" readonly>
-                </div>
-                <div class="col">
-                    <label for="task_end">Task Expected End Date:</label>
-                    <input type="text" class="form-control" id="task_end" name="task_end" readonly>
-                </div>
-                <div class="col">
-                    <label for="task_duration">Task Duration:</label>
-                    <input type="text" class="form-control" id="task_duration" name="task_duration" readonly>
-                </div>
-                <div class="col">
-                    <label for="task_duration">Task Remaining Duration:</label>
-                    <input type="text" class="form-control" id="task_remain_duration" name="task_remain_duration" readonly>
-                </div>
+        <div id='sch'>
+            <div class="form-group" >
+                    <label for="phase_name">Phase Name:</label>
+                    <select class="form-control" id="phase_name" name="phase_name">
+                        <option>Select Phase</option>
+                    </select>
             </div>
-        </div>
-        <input type="hidden" id="user_id" name="user_id" value="1">
-        <div class="form-group">
-    <div class="row">
-        <div class="col-sm-3">    
-            <label for="days">Select Days to log:</label>
-            <select class="form-control" id="days" name="days"></select>
-        </div>
-        <div class="col">
-            <label for="details">Details:</label>
-            <input type="text" class="form-control" id="details" name="details">
-        </div>
-    </div>
-</div>
+            <div class="form-group">
+                    <label for="task_name">Task Name:</label>
+                    <select class="form-control" id="task_name" name="task_name">
+                        <option>Select Task</option>
+                    </select>
+            </div>
 
-        <button type="submit" class="btn btn-primary" id="log-task-button">Log Task for Today</button>
+                <div class="form-group" >
+                    <div class="row">
+                        <div class="col">
+                            <label for="task_start">Task ID:</label>
+                            <input type="text" class="form-control" id="task_id" name="task_id" readonly>
+                        </div>
+                        <div class="col">
+                            <label for="task_start">Task Start Date:</label>
+                            <input type="text" class="form-control" id="task_start" name="task_start" readonly>
+                        </div>
+                        <div class="col">
+                            <label for="task_end">Task Expected End Date:</label>
+                            <input type="text" class="form-control" id="task_end" name="task_end" readonly>
+                        </div>
+                        <div class="col">
+                            <label for="task_duration">Task Duration (days):</label>
+                            <input type="text" class="form-control" id="task_duration" name="task_duration" readonly>
+                        </div>
+                        <div class="col">
+                            <label for="task_duration">Task Remaining Duration (days):</label>
+                            <input type="text" class="form-control" id="task_remain_duration" name="task_remain_duration" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" id="user_id" name="user_id" value="1">
+                <div class="form-group">
+
+                    <div class="col-sm-3" id='sch'>   
+                        <label for="days">Select Days to log:</label>
+                        <select class="form-control" id="days" name="days"></select>
+                    </div>
+                </div>
+    </div>
+                    <div class="form-group">
+                                <label for="details">Details:</label>
+                                <input type="text" class="form-control" id="details" name="details">
+                    </div>
+                    <div class="form-group col-sm-4" id='unsch'>
+                                <label for="details">Status:</label>
+                                <input type="number" id="status" name="status" class="form-control" min="0" max="100" required>
+                    </div>
+                    
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary" id="log-task-button">Log Task for Today</button>
+        </div>
     </form>
 </div>
 
@@ -141,6 +150,13 @@
                             options += "<option value='" + value.phase_name + "'>" + value.phase_name + "</option>";
                         });
                         $("#phase_name").html(options);
+                        if (data.length === 1) {
+                            $("#sch").hide();
+                            $("#unsch").show();
+                        } else {
+                            $("#sch").show();
+                            $("#unsch").hide();
+                        }
 					}
 				});
 				$("#task_name").html("<option>Select phase name first</option>");
@@ -199,23 +215,26 @@
                     return false;
                 }
                 });
-                if (hasEmpty) {
+                if (hasEmpty && !$("#sch").is(":hidden"))  {
                     alert("Please fill in all the fields before submitting.");
                 } else {
                     var project_name = $("#tail_id").val();
                     var phase_name = $("#phase_name").val();
                     var task_name = $("#task_name").val();
                     var details = $("#details").val();
-                    if($("#task_remain_duration").val() == 0)
+                    if(($("#task_remain_duration").val() == 0) && !$("#sch").is(":hidden"))
                     {
                         alert_toast("Task already completed", "error");
                         return false;
                     }
-
+                    var params = {project_name: project_name, phase_name: phase_name, task_name: task_name, duration:0, details:details}
+                    if ($("#sch").is(":hidden")) {
+                        params.status = $("#status").val();
+                    }
                     $.ajax({
 					url: "load_maint_data.php",
 					type: "POST",
-					data: {project_name: project_name, phase_name: phase_name, task_name: task_name, duration:0, details:details},
+					data: params,
 					success: function(data){
                         console.log(data);
                         alert_toast("Task updated", "success");

@@ -144,15 +144,18 @@
         $duration = $end->diff($start)->format('%a');
 
         // calculate percentage of duration and completed duration
-        $result = $conn->query("SELECT SUM(completed_duration) AS total_completed_duration FROM project_tasks WHERE project_name = '$project_name'");
+        $result = $conn->query("SELECT SUM(duration) as total_duration, SUM(completed_duration) AS total_completed_duration FROM project_tasks WHERE project_name = '$project_name'");
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
+            $total_duration = $row['total_duration'];
             if ($row['total_completed_duration'] === null ) {
                 $status = 0;
             } else {
-                if($duration > 0)
+                if($total_duration > 0)
                 {
-                    $status = round($row['total_completed_duration'] / $duration * 100);
+                    $status = round($row['total_completed_duration'] / $total_duration * 100);
+                    if($status >= 100)
+                        $status = 100;
                     if($status == 100)
                         $flyingdate = new DateTime();
                 }

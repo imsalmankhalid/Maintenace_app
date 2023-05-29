@@ -25,7 +25,7 @@
 						</div>
 						<div class="form-group">
 							<label for="" class="control-label">User Base</label>
-							<select name="base" id="base" class="custom-select custom-select-sm">
+							<select name="airbase" id="airbase" class="custom-select custom-select-sm">
 							<?php 
 								$bases = $conn->query("SELECT * FROM bases ");
 								while($row= $bases->fetch_assoc()):
@@ -122,6 +122,7 @@
 				}
 			}
 		}
+
 		$.ajax({
 			url:'ajax.php?action=save_user',
 			data: new FormData($(this)[0]),
@@ -141,6 +142,12 @@
 					$('[name="email"]').addClass("border-danger")
 					end_load()
 				}
+			 else {
+					alert_toast(resp, 'error');
+					setTimeout(function() {
+						location.reload();
+					}, 1500);
+            	}
 			}
 		})
 	})

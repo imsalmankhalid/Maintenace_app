@@ -39,42 +39,34 @@
 
 <div class="row">
 <div class="col-md-8">
-	<div class="card card-outline card-primary">
-		<div class="card-body">
-        <div class="card-header" style="font-weight: bold; font-size: 20px;">
-                Staggering Database
-        </div>
-			<form action="" id="addAircraft">
-            <div class="form-group row mb-3">
-            <label for="aircraft" class="col-sm-2 col-form-label">Aircraft:</label>
-                <div class="col-sm-10">
-                    <select id="aircraft" name="aircraft" class="form-control">
-                        <option value="">-- Select an aircraft --</option>
-                        <?php echo $aircraft_options; ?>
-                    </select>
-                </div>
+    <div class="card card-outline card-primary">
+        <div class="card-body">
+            <div class="card-header" style="font-weight: bold; font-size: 20px;">
+                Staggering Chart
             </div>
-
-
+            <form action="" id="addAircraft">
                 <div class="form-group row mb-3">
-                    <label for="tail_number" class="col-sm-2 col-form-label">Tail Number:</label>
+                    <label for="aircraft" class="col-sm-2 col-form-label">Aircraft:</label>
                     <div class="col-sm-10">
-                    <input type="text" id="tail_number" name="tail_number" class="form-control">
+                        <select id="aircraft" name="aircraft" class="form-control">
+                            <option value="">-- Select an aircraft --</option>
+                            <?php echo $aircraft_options; ?>
+                        </select>
                     </div>
                 </div>
 
                 <div class="form-group row mb-3">
-                    <label for="inspection_type" class="col-sm-2 col-form-label">Inspection Type:</label>
+                    <label for="tail_id" class="col-sm-2 col-form-label">Tail Number:</label>
                     <div class="col-sm-10">
-                    <select id="inspection_type" name="inspection_type" class="form-control">
-                        <option value="">-- Select an inspection type --</option>
-                        <option value="scheduled">Flying</option>
-                        <option value="unscheduled">Maintenance</option>
-                        <option value="unscheduled">Other</option>
-                    </select>
+                        <input type="text" id="tail_id" name="tail_id" class="form-control">
                     </div>
                 </div>
-
+                <div class="form-group row mb-3">
+                    <label for="flying_hours" class="col-sm-2 col-form-label">Flying Hours:</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="flying_hours" name="flying_hours" class="form-control">
+                    </div>
+                </div>
                 <div class="form-group row mb-3">
                     <label for="details" class="col-sm-2 col-form-label">Details:</label>
                     <div class="col-sm-10">
@@ -82,33 +74,28 @@
                     </div>
                 </div>
                 <div class="form-group row mb-3">
-                    <label for="start_date" class="col-sm-2 col-form-label">Start Date:</label>
+                    <label for="max_hours" class="col-sm-2 col-form-label">Max Hours:</label>
                     <div class="col-sm-10">
-                        <input type="date" id="start_date" name="start_date" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>" required>
-                    </div>
-                </div>
-                <div class="form-group row mb-3">
-                    <label for="exp_date" class="col-sm-2 col-form-label">Expected Completion Date:</label>
-                    <div class="col-sm-10">
-                        <input type="date" id="exp_date" name="exp_date" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>" required>
+                        <input type="text" id="max_hours" name="max_hours" class="form-control">
                     </div>
                 </div>
 
                 <div class="form-group row">
                     <div class="col-sm-10 offset-sm-2">
-                    <button class="btn btn-primary" form="addAircraft">Submit</button>
+                        <button class="btn btn-primary" form="addAircraft">Submit</button>
                     </div>
                 </div>
-			</form>
-		</div>
-	</div>
+            </form>
+        </div>
+    </div>
 </div>
+
 
 <div class="col">
     <div class="card card-outline card-primary">
         <div class="card-body">
             <div class="card-header" style="font-weight: bold; font-size: 20px;">
-                Update Status
+                Update Flying hours
             </div>
             <form action="" id="updateStatusForm" method="POST">
                 <div class="form-group">
@@ -116,9 +103,9 @@
                     <select id="aircraftSelect" name="aircraftSelect" class="form-control">
                         <option value="">-- Select an aircraft --</option>
                         <?php 
-                            $result = $conn->query("SELECT project_name FROM project_tasks WHERE phase_name = 'stg'");
+                            $result = $conn->query("SELECT aircraft, tail_id FROM stgchart");
                             while ($row = $result->fetch_assoc()) {
-                                $projectName = $row['project_name'];
+                                $projectName = $row['aircraft']."_".$row['tail_id'];
                         ?>
                             <option value="<?php echo $projectName; ?>"><?php echo $projectName; ?></option>
                         <?php } ?>
@@ -291,7 +278,7 @@ $(document).ready(function () {
                 if (response == 1) {
                     alert_toast('Delete successful', "success");
                     setTimeout(function () {
-                        location.href = 'index.php?page=add_aircraft_stg';
+                        location.href = 'index.php?page=add_aircraft_stgchart';
                     }, 2000);
                 } else {
                     alert_toast(response, "error", 5000);
@@ -349,7 +336,7 @@ $(document).ready(function () {
                 if(resp == 1){
                     alert_toast('Data successfully saved',"success");
                     setTimeout(function(){
-                        location.href = 'index.php?page=add_aircraft_stg'
+                        location.href = 'index.php?page=add_aircraft_stgchart'
                     },2000)
                 }
                 else
