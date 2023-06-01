@@ -44,5 +44,5 @@
  <!-- summernote -->
   <link rel="stylesheet" href="assets/plugins/summernote/summernote-bs4.min.css">
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-  <script src="assets/plugins/chartjs/chart.min.js"></script>
+  <script src="assets/plugins/chartjs/Chart.min.js"></script>
 </head>

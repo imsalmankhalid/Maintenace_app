@@ -401,6 +401,17 @@ Class Action {
 		return $data;
 	}
 
+	function delete_base(){
+		extract($_POST);
+		$check = $this->db->query("DELETE FROM bases WHERE id = '$base_id'");
+		if ($check) {
+			return 1;
+		} else {
+			return $this->db->error();
+		}
+	}
+	
+
 	function add_aircraft_maint(){
 
 		if ($_POST['req'] == 'delete') {

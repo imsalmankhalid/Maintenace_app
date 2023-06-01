@@ -58,7 +58,7 @@
                 <div class="form-group row mb-3">
                     <label for="tail_number" class="col-sm-2 col-form-label">Tail Number:</label>
                     <div class="col-sm-10">
-                    <input type="text" id="tail_number" name="tail_number" class="form-control">
+                    <input type="text" id="tail_number" name="tail_number" class="form-control" required>
                     </div>
                 </div>
 
@@ -142,28 +142,34 @@
         $start = new DateTime($start_date);
         $end = new DateTime($last_end_date);
         $duration = $end->diff($start)->format('%a');
-
+        $status = 0;
         // calculate percentage of duration and completed duration
-        $result = $conn->query("SELECT SUM(duration) as total_duration, SUM(completed_duration) AS total_completed_duration FROM project_tasks WHERE project_name = '$project_name'");
+        $result = $conn->query("SELECT status, inspectionType, SUM(duration) as total_duration, SUM(completed_duration) AS total_completed_duration FROM project_tasks WHERE project_name = '$project_name'");
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
             $total_duration = $row['total_duration'];
-            if ($row['total_completed_duration'] === null ) {
-                $status = 0;
-            } else {
-                if($total_duration > 0)
-                {
-                    $status = round($row['total_completed_duration'] / $total_duration * 100);
-                    if($status >= 100)
-                        $status = 100;
-                    if($status == 100)
-                        $flyingdate = new DateTime();
-                }
+            if($row['inspectionType'] === 'unscheduled')
+            {
+                $status = $row['status'];
             }
-        } else {
-            $status = 0;
-        }
+            else
+            {
+                if ($row['total_completed_duration'] === null ) {
+                    $status = 0;
+                } else {
+                    if($total_duration > 0)
+                    {
+                        $status = round(($row['total_completed_duration'] / $row['total_duration']) * 100);
+                    
+                        if($status >= 100)
+                            $status = 100;
 
+                    }
+                }
+            } 
+        }
+        if($status == 100)
+            $flyingdate = date('Y-m-d H:i:s');
         // split project name by underscore to get aircraft name and tail id
         $name_parts = explode('_', $project_name);
         $aircraft_name = $name_parts[0];

@@ -59,7 +59,7 @@
                 <div class="form-group row mb-3">
                     <label for="tail_number" class="col-sm-2 col-form-label">Tail Number:</label>
                     <div class="col-sm-10">
-                    <input type="text" id="tail_number" name="tail_number" class="form-control">
+                    <input type="text" id="tail_number" name="tail_number" class="form-control" required>
                     </div>
                 </div>
 

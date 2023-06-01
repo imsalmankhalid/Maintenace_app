@@ -15,7 +15,7 @@ include 'db_connect.php';
 
     if(isset($_REQUEST['project_name'])){
         $where = "WHERE project_name = '{$_REQUEST['project_name']}'";
-        $qry ="SELECT DISTINCT phase_name FROM project_tasks ".$where;
+        $qry ="SELECT DISTINCT phase_name, status, details FROM project_tasks ".$where;
        
     }
 
@@ -32,12 +32,10 @@ include 'db_connect.php';
 
     if(isset($_REQUEST['status'])){
         $where = "WHERE project_name = '{$_REQUEST['project_name']}' ";
-        $qry = "UPDATE project_tasks SET status = '{$_REQUEST['status']}', details = '" . $_REQUEST['details'] . "'" . $where;
+        $qry = "UPDATE project_tasks SET status = '{$_REQUEST['status']}', details = CONCAT(details, '" . $_REQUEST['details'] . "')" . $where;
         // fetch data from database
         $qry = $conn->query($qry);
-        
         exit;
-
     }
 
     if(isset($_REQUEST['project_name']) && isset($_REQUEST['phase_name']) && isset($_REQUEST['task_name']) && isset($_REQUEST['duration']) && !isset($_REQUEST['status'])){

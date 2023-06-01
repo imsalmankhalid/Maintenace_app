@@ -48,23 +48,16 @@
 				</thead>
 				<tbody>
 					<?php
-					$i = 1;
 					$qry = $conn->query("SELECT * FROM bases order by id asc");
 					while($row= $qry->fetch_assoc()):
 					?>
 					<tr>
-						<th class="text-center"><?php echo $i++ ?></th>
+						<th class="text-center"><?php $row['id'] ?></th>
 						<td><b><?php echo ucwords($row['name']) ?></b></td>
 						<td><b><?php echo $row['location'] ?></b></td>
-						<td class="text-center">
-							<button type="button" class="btn btn-default btn-sm btn-flat border-info wave-effect text-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-		                      Action
-		                    </button>
-		                    <div class="dropdown-menu" style="">
-		                      <div class="dropdown-divider"></div>
-		                      <a class="dropdown-item delete_base" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>">Delete</a>
-		                    </div>
-						</td>
+						<td>
+							<button class="btn btn-sm btn-danger delete_btn" data-id="<?php echo $row['id'] ?>">Delete</button>
+						</td> <!-- Added delete button -->
 					</tr>	
 				<?php endwhile; ?>
 				</tbody>
@@ -74,6 +67,31 @@
 </div>
 
 <script>
+	$(document).on('click', '.delete_btn', function(e){
+		e.preventDefault();
+		var baseId = $(this).data('id');
+
+			$.ajax({
+				url: 'ajax.php?action=delete_base',
+				method: 'POST',
+				data: { base_id: baseId },
+				success: function(resp){
+					console.log(resp);
+					if(resp == 1){
+						alert_toast('Data successfully deleted.', "success");
+						setTimeout(function(){
+							location.reload();
+						}, 750);
+					}else{
+						alert_toast('An error occurred:'.resp, "error");
+					}
+				},
+				error: function(jqXHR, textStatus, errorThrown){
+					console.log(textStatus, errorThrown);
+				}
+			});
+	});
+
 	$('#manage_user').submit(function(e){
 		e.preventDefault()
 		$('input').removeClass("border-danger")

@@ -77,10 +77,10 @@
     </div>
                     <div class="form-group">
                                 <label for="details">Details:</label>
-                                <input type="text" class="form-control" id="details" name="details">
+                                <textarea class="form-control" id="details" name="details"></textarea>
                     </div>
                     <div class="form-group col-sm-4" id='unsch'>
-                                <label for="details">Status:</label>
+                                <label for="status">Status:</label>
                                 <input type="number" id="status" name="status" class="form-control" min="0" max="100" required>
                     </div>
                     
@@ -151,8 +151,11 @@
                         });
                         $("#phase_name").html(options);
                         if (data.length === 1) {
+                            console.log(data);
                             $("#sch").hide();
                             $("#unsch").show();
+                            $('#status').val(data[0].status);
+                            $('#details').val(data[0].details);
                         } else {
                             $("#sch").show();
                             $("#unsch").hide();
@@ -229,7 +232,7 @@
                     }
                     var params = {project_name: project_name, phase_name: phase_name, task_name: task_name, duration:0, details:details}
                     if ($("#sch").is(":hidden")) {
-                        params.status = $("#status").val();
+                        params = {project_name: project_name, duration:0, details:details, status:$("#status").val()}
                     }
                     $.ajax({
 					url: "load_maint_data.php",

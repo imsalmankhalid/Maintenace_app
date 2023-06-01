@@ -87,6 +87,12 @@ if($action == 'save_base'){
 		echo $get;
 }
 
+if($action == 'delete_base'){
+	$get = $crud->delete_base();
+	if($get)
+		echo $get;
+}
+
 if($action == 'add_aircraft_maint'){
 	$get = $crud->add_aircraft_maint();
 	echo $get;
