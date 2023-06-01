@@ -91,6 +91,9 @@ if($action == 'add_aircraft_maint'){
 	$get = $crud->add_aircraft_maint();
 	echo $get;
 }
-
+if($action == 'add_aircraft_stgchart'){
+	$get = $crud->add_aircraft_stgchart();
+	echo $get;
+}
 ob_end_flush();
 ?>

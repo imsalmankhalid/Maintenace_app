@@ -496,4 +496,49 @@ Class Action {
 			}
 		}
 	}
+
+
+	function add_aircraft_stgchart(){
+
+		if ($_POST['req'] == 'delete') {
+			// Handle delete request
+			$project_name = $_POST['project_name'];
+	
+			// Perform delete operation based on the project name
+			$sql_delete = "DELETE FROM project_tasks WHERE project_name = '$project_name'";
+			$result_delete = $save = $this->db->query($sql_delete);
+	
+			if ($result_delete) {
+				return 1;
+			} else {
+				echo "Error: " . mysqli_error($this->db);
+				return 1;
+			}
+		} 
+		
+		$aircraft = $_POST['aircraft'];
+		$tail_id = $_POST['tail_id'];
+		$flying_hours = $_POST['flying_hours'];
+		$details = $_POST['details'];
+		$max_hours = $_POST['max_hours'];
+
+		// Check if project name already exists
+		$sql_check = "SELECT * FROM stgchart WHERE aircraft = '$aircraft' and tail_id = '$tail_id'";
+		$result_check = $save = $this->db->query($sql_check);
+		
+		if ($result_check->num_rows > 0) {
+			echo "Aircraft name already exists!";
+			return 0;
+		} else {
+			if ($_POST['req'] == 'stgchart') {
+				$sql_insert = "INSERT INTO stgchart (aircraft, tail_id, flying_hours, details, max_hours) VALUES ('$aircraft', '$tail_id', '$flying_hours', '$details', '$max_hours\n')";
+				$result_check = $this->db->query($sql_insert);
+				if(!$result_check) {
+					echo "Error: " . mysqli_error($this->db);
+					return 0;
+				}
+				return 1;
+			}
+		}
+	}
 }

@@ -1,3 +1,4 @@
+
 <?php
     // Include database connection script
     require_once 'db_connect.php';
@@ -201,6 +202,37 @@
     }
 ?>
 
+<div class="card card-outline card-success">
+<div class="card-header" style="font-weight: bold; font-size: 20px;">
+        Maintenance Aircraft List (Flying Hours Graph)
+    </div>
+<div class="card-body">
+
+            <form action="" id="showStgChart">
+                <div class="form-group row mb-3">
+                    <label for="aircraft" class="col-sm-2 col-form-label">Aircraft:</label>
+                    <div class="col-sm-4">
+                        <select id="aircraftstg" name="aircraftstg" class="form-control" onchange="loadChart()">
+                            <option value="">-- Select an aircraft --</option>
+                            <?php 
+                            $result = $conn->query("SELECT distinct aircraft FROM stgchart");
+                            while ($row = $result->fetch_assoc()) {
+                                $projectName = $row['aircraft'];
+                            ?>
+                            <option value="<?php echo $projectName; ?>"><?php echo $projectName; ?></option>
+                        <?php } ?>
+                        </select>
+                    </div>
+                </div>
+            </form>
+            <style>
+    canvas {
+      max-width: 1000px;
+    }
+  </style>
+    <canvas id="lineChart"></canvas>
+</div>
+</div>
 
 <div class="card card-outline card-success">
     <div class="card-body">
@@ -212,40 +244,49 @@
             <table class="table table-hover table-condensed" id="list">
                 <thead>
                     <tr>
-                        <th class="text-center">#</th>
-                        <th class="text-center">Aircraft Name</th>
+                        <th class="text-center">ID</th>
+                        <th class="text-center">Aircraft</th>
                         <th class="text-center">Tail ID</th>
-                        <th class="text-center">Inspection Type</th>
-                        <th>Date Started</th>
-                        <th>Expected Completion Date</th>
-                        <th>Status</th>
+                        <th class="text-center">Flying Hours</th>
                         <th>Details</th>
-                        <th>Action</th>
+                        <th>Max Hours</th>
+                        <th>Last Updated</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <?php foreach ($data as $i => $row) { ?>
-                        <tr data-toggle="collapse" data-target="#details-row-<?php echo $i + 1 ?>">
-                            <td class="text-center"><?php echo $i + 1 ?></td>
-                            <td class="text-center"><?php echo $row['aircraft_name']; ?></td>
-                            <td class="text-center"><?php echo $row['tail_id']; ?></td>
-                            <td class="text-center"><?php echo $row['inspectionType']; ?></td>
-                            <td><?php echo $row['start_date'] ?></td>
-                            <td><?php echo $row['completion_date'] ?></td>
-                            <td><?php echo $row['status'] ?>%</td>
-                            <td>
-                                <button class="btn btn-link details-toggle" data-toggle="collapse" data-target="#details-row-<?php echo $i + 1 ?>">Show Details</button>
-                                <div id="details-row-<?php echo $i + 1 ?>" class="collapse">
-                                    <?php echo $row['details'] ?>
-                                </div>
-                            </td>
-                            <td>
-                                <button class="btn btn-danger btn-sm delete-btn" data-row='<?php echo json_encode($row); ?>'>
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    <?php } ?>
+                <tbody id="table-body">
+                    <?php
+                    // Include your database connection
+                    include 'db_connect.php';
+
+                    // Query to retrieve data from the stgchart table
+                    $sql = "SELECT * FROM stgchart";
+                    $result = $conn->query($sql);
+
+                    // Check if there are any rows returned
+                    if ($result->num_rows > 0) {
+                        // Loop through each row and display the data in table rows
+                        while ($row = $result->fetch_assoc()) {
+                            echo '<tr>';
+                            echo '<td class="text-center">' . $row['id'] . '</td>';
+                            echo '<td class="text-center">' . $row['aircraft'] . '</td>';
+                            echo '<td class="text-center">' . $row['tail_id'] . '</td>';
+                            echo '<td class="text-center">' . $row['flying_hours'] . '</td>';
+                            echo '<td>';
+                            echo '<button class="btn btn-link details-toggle" data-toggle="collapse" data-target="#details-row-' . $row['id'] . '">Show Details</button>';
+                            echo '<div id="details-row-' . $row['id'] . '" class="collapse">' . $row['details'] . '</div>';
+                            echo '</td>';
+                            echo '<td>' . $row['max_hours'] . '</td>';
+                            echo '<td>' . $row['last_updated'] . '</td>';
+                            echo '</tr>';
+                        }
+                    } else {
+                        // If no rows are returned, display a message
+                        echo '<tr><td colspan="7" class="text-center">No data found.</td></tr>';
+                    }
+
+                    // Close the database connection
+                    $conn->close();
+                    ?>
                 </tbody>
             </table>
         </div>
@@ -255,10 +296,11 @@
 
 
 
+
 <script>
 
 $(document).ready(function () {
-    console.log(<?php echo json_encode($json_array); ?>);
+   
     $(".delete-btn").click(function () {
         // Get the row data from the data attribute
         var rowData = $(this).data("row");
@@ -290,6 +332,29 @@ $(document).ready(function () {
             }
         });
     });
+
+    $('#aircraftstg').change(function() {
+    var aircraft = $(this).val();
+    if (aircraft !== '') {
+        $.ajax({
+            url: 'get_stgchart_data.php',
+            type: 'POST',
+            data: { aircraft: aircraft },
+            success: function(response) {
+                var options = '<option> -- Select an tail id </option>';
+                if (response.length > 0) {
+                    for (var i = 0; i < response.length; i++) {
+                        options += '<option value="' + response[i].tail_id + '">' + response[i].tail_id + '</option>';
+                    }
+                } else {
+                    options = '<option value="">-- Select a tail id --</option>';
+                }
+                $('#tail_idstg').html(options);
+                }
+            });
+        }
+    });
+
 });
 
 
@@ -311,24 +376,19 @@ $(document).ready(function () {
     $('#addAircraft').submit(function(e){
         e.preventDefault(); // Prevent form submission
         var aircraft = $('#aircraft').val();
-        var tail_number = $('#tail_number').val();
-        var inspection_type = $('#inspection_type').val();
-        var hours = $('#hours').val();
-        var start_date = $('#start_date').val();
+        var tail_id = $('#tail_id').val();
+        var flying_hours = $('#flying_hours').val();
         var details = $('#details').val();
-        var exp_date = $('#exp_date').val();
-        console.log(hours);
+        var max_hours = $('#max_hours').val();
         $.ajax({
-            url:'ajax.php?action=add_aircraft_maint',
+            url:'ajax.php?action=add_aircraft_stgchart',
             data: {
-                req: "stg",
+                req: "stgchart",
                 aircraft: aircraft,
-                tail_number: tail_number,
-                inspection_type: inspection_type,
-                hours: hours,
-                start_date: start_date,
+                tail_id: tail_id,
+                flying_hours: flying_hours,
                 details: details,
-                exp_date:exp_date
+                max_hours: max_hours
             },
             method: 'POST',
             success:function(resp){
@@ -346,5 +406,95 @@ $(document).ready(function () {
             }
         })
     })
+    
+    function loadChart() {
+            var aircraft = $('#aircraftstg').val();
+            $.ajax({
+                url: "get_stgchart_data.php",
+                data: { aircraft: aircraft },
+                dataType: "json",
+                success: function (jsonData) {
+                    console.log(jsonData);
+                    var dataArray = jsonData;
+
+                       // Extract x-axis labels
+                    var xLabels = jsonData.map(function(data) {
+                    return parseInt(data.tail_id);
+                    });
+
+                    // Extract y-axis values
+                    var yValues = jsonData.map(function(data) {
+                    return parseInt(data.flying_hours);
+                    });
+
+                    var maxHours = Math.max.apply(Math, dataArray.map(function(item) {
+                        return parseInt(item.max_hours);
+                    }));
+                    // Create line chart
+                    var ctx = document.getElementById('lineChart').getContext('2d');
+                    var chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: xLabels,
+                        datasets: [{
+                        label: 'Flying Hours Chart',
+                        data: yValues,
+                        fill: false,
+                        pointRadius: 20,
+                        backgroundColor : yValues.map(function(value) {
+                            console.log(value);
+                            var percentage = (value / maxHours) * 100;
+                            if (percentage < 50) {
+                                return 'green';
+                            } else if (percentage >= 50 && percentage <= 80) {
+                                return 'yellow';
+                            } else {
+                                return 'red';
+                            }
+                        }),
+                        borderColor: yValues.map(function(value) {
+                            console.log(value);
+                            var percentage = (value / maxHours) * 100;
+                            if (percentage < 50) {
+                                return 'green';
+                            } else if (percentage >= 50 && percentage <= 80) {
+                                return 'yellow';
+                            } else {
+                                return 'red';
+                            }
+                        })
+                        }]
+                    },
+                    options: {
+                        scales: {
+                        x: {
+                            min: 0,
+                            display: true
+                        },
+                        y: {
+                            min: 0,
+                            max: maxHours,
+                            display: true
+                        }
+                        },
+                        plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    var label = 'Tail ID: ' + context.parsed.x + '\n';
+                                    label += 'Flying hours: ' + context.parsed.y;
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+
+                    }
+                    });
+
+        }
+    });
+}
+
 
 </script>
