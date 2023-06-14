@@ -41,7 +41,7 @@
 	<div class="card card-outline card-primary">
 		<div class="card-body">
         <div class="card-header" style="font-weight: bold; font-size: 20px;">
-                Maintenance Database
+                Base Database
             </div>
 			<form action="" id="addAircraft">
             <div class="form-group row mb-3">
@@ -117,7 +117,7 @@
 
 <?php
     // fetch data from database
-    $qry = $conn->query("SELECT phase_name, project_name, details, inspectionType, MAX(end_date) AS last_end_date FROM project_tasks WHERE phase_name != 'stg' GROUP BY project_name");
+    $qry = $conn->query("SELECT phase_name, project_name, details, inspectionType, MAX(end_date) AS last_end_date FROM project_tasks WHERE phase_name != 'stg' AND airbase = '{$_SESSION['login_airbase']}' GROUP BY project_name");
 
     // initialize array to store data
     $data = array();
@@ -222,7 +222,15 @@
                                 <td class="text-center"><?php echo $i + 1 ?></td>
                                 <td class="text-center"><?php echo $row['aircraft_name']; ?></td>
                                 <td class="text-center"><?php echo $row['tail_id']; ?></td>
-                                <td class="text-center"><?php echo $row['inspectionType']; ?></td>
+                                <td class="text-center">
+                                <?php
+                                    if ($row['inspectionType'] == 'scheduled') {
+                                        echo 'Maintenance';
+                                    } elseif ($row['inspectionType'] == 'unscheduled') {
+                                        echo 'Flying';
+                                    }
+                                ?>
+                            </td>
                                 <td><?php echo $row['start_date'] ?></td>
                                 <td><?php echo $row['completion_date'] ?></td>
                                 <td><?php echo $row['duration'] ?></td>
@@ -333,7 +341,8 @@ $(document).ready(function () {
         var start_date = $('#start_date').val();
         var details = $('#details').val();
         var exp_date = $('#exp_date').val();
-        console.log(hours);
+        var airbase = "<?php echo $_SESSION['login_airbase']; ?>";
+
         $.ajax({
             url:'ajax.php?action=add_aircraft_maint',
             data: {
@@ -344,11 +353,11 @@ $(document).ready(function () {
                 hours: hours,
                 start_date: start_date,
                 details: details,
-                exp_date:exp_date
+                exp_date:exp_date,
+                airbase:airbase
             },
             method: 'POST',
             success:function(resp){
-                
                 if(resp == 1){
                     alert_toast('Data successfully saved',"success");
                     setTimeout(function(){
@@ -358,7 +367,12 @@ $(document).ready(function () {
                 else
                 {
                     alert_toast(resp, "error",50000);
+                    console.log(resp);
                 }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert_toast('AJAX request error: ' + textStatus + ' - ' + errorThrown,50000);
+                
             }
         })
     })

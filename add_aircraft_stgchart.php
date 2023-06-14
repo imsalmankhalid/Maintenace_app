@@ -6,7 +6,7 @@
     // Read the log file into a string
     $log_file = 'aircraft_maint_data.txt';
     $log_data = file_get_contents($log_file);
-
+    $max_hours = [];
     // Parse the data from the log file
     eval($log_data);
 
@@ -36,6 +36,12 @@
     
     // Convert to JSON array
     $json_array = json_encode($aircraft_hours);
+    
+    // Convert $max_hours to an associative array
+    $max_hours_array = [];
+    foreach ($max_hours as $index => $value) {
+        $max_hours_array[$index] = $value;
+    }
 ?>
 
 <div class="row">
@@ -43,7 +49,7 @@
     <div class="card card-outline card-primary">
         <div class="card-body">
             <div class="card-header" style="font-weight: bold; font-size: 20px;">
-                Staggering Chart
+                Register aircraft for stagger chart
             </div>
             <form action="" id="addAircraft">
                 <div class="form-group row mb-3">
@@ -77,7 +83,7 @@
                 <div class="form-group row mb-3">
                     <label for="max_hours" class="col-sm-2 col-form-label">Max Hours:</label>
                     <div class="col-sm-10">
-                        <input type="text" id="max_hours" name="max_hours" class="form-control">
+                    <input type="text" id="max_hours" name="max_hours" class="form-control" disabled>
                     </div>
                 </div>
 
@@ -104,7 +110,7 @@
                     <select id="aircraftSelect" name="aircraftSelect" class="form-control">
                         <option value="">-- Select an aircraft --</option>
                         <?php 
-                            $result = $conn->query("SELECT aircraft, tail_id FROM stgchart");
+                            $result = $conn->query("SELECT aircraft, tail_id FROM stgchart where airbase ='".$_SESSION['login_airbase']."'");
                             while ($row = $result->fetch_assoc()) {
                                 $projectName = $row['aircraft']."_".$row['tail_id'];
                         ?>
@@ -119,7 +125,7 @@
                         <textarea id="details" name="details" class="form-control"></textarea>
                     </div>
 
-                    <label for="status">Status:</label>
+                    <label for="status">Flying Hours:</label>
                     <input type="number" id="status" name="status" class="form-control" min="0" max="100" required>
                 </div>
                 <div class="form-group">
@@ -132,7 +138,7 @@
                         $details = $_POST['details'];
 
                         // Perform the update operation
-                        $updateQuery = "UPDATE project_tasks SET status = $status, details = CONCAT(details, '\n', NOW(), ': $details') WHERE project_name = '$projectName'";
+                        $updateQuery = "UPDATE project_tasks SET status = $status, details = $details WHERE project_name = '$projectName'";
                         if ($conn->query($updateQuery)) {
                             echo "Update successful! ";
                         } else {
@@ -152,7 +158,7 @@
 </div>
 <?php
     // fetch data from database
-    $qry = $conn->query("SELECT  status,phase_name, project_name, details, inspectionType, MAX(end_date) AS last_end_date FROM project_tasks WHERE phase_name = 'stg' GROUP BY project_name");
+    $qry = $conn->query("SELECT  status,phase_name, project_name, details, inspectionType, MAX(end_date) AS last_end_date FROM project_tasks WHERE phase_name = 'stg' and airbase ='".$_SESSION['login_airbase']."' GROUP BY project_name");
 
 
     // initialize array to store data
@@ -180,7 +186,7 @@
         $duration = $end->diff($start)->format('%a');
 
         // calculate percentage of duration and completed duration
-        $result = $conn->query("SELECT SUM(completed_duration) AS total_completed_duration FROM project_tasks WHERE project_name = '$project_name'");
+        $result = $conn->query("SELECT SUM(completed_duration) AS total_completed_duration FROM project_tasks WHERE project_name = '$project_name' and airbase ='".$_SESSION['login_airbase']."'");
 
         // split project name by underscore to get aircraft name and tail id
         $name_parts = explode('_', $project_name);
@@ -204,7 +210,7 @@
 
 <div class="card card-outline card-success">
 <div class="card-header" style="font-weight: bold; font-size: 20px;">
-        Maintenance Aircraft List (Flying Hours Graph)
+        Stagger Aircraft List (Flying Hours Graph)
     </div>
 <div class="card-body">
 
@@ -237,7 +243,7 @@
 <div class="card card-outline card-success">
     <div class="card-body">
         <div class="card-header" style="font-weight: bold; font-size: 20px;">
-            Maintenance Aircraft List
+        Stagger Aircraft List
         </div>
         <div class="card-body">
             <input type="text" id="search-input" class="form-control mb-3" placeholder="Search">
@@ -259,7 +265,7 @@
                     include 'db_connect.php';
 
                     // Query to retrieve data from the stgchart table
-                    $sql = "SELECT * FROM stgchart";
+                    $sql = "SELECT * FROM stgchart where airbase ='".$_SESSION['login_airbase']."'";
                     $result = $conn->query($sql);
 
                     // Check if there are any rows returned
@@ -335,11 +341,12 @@ $(document).ready(function () {
 
     $('#aircraftstg').change(function() {
     var aircraft = $(this).val();
+    
     if (aircraft !== '') {
         $.ajax({
             url: 'get_stgchart_data.php',
             type: 'POST',
-            data: { aircraft: aircraft },
+            data: { aircraft: aircraft},
             success: function(response) {
                 var options = '<option> -- Select an tail id </option>';
                 if (response.length > 0) {
@@ -356,6 +363,28 @@ $(document).ready(function () {
     });
 
 });
+var maxHoursArray = <?php echo json_encode($max_hours_array); ?>;
+
+    $('#aircraft').change(function() {
+            var selectedAircraft = $(this).val();
+            console.log(maxHoursArray);
+            // Check if the selected value matches any index in maxHoursArray
+            if (maxHoursArray.hasOwnProperty(selectedAircraft)) {
+                // Access the value from maxHoursArray
+                var maxHours = maxHoursArray[selectedAircraft];
+                
+                // Do something with the maxHours value
+                console.log(maxHours);
+                
+                // Set the value of the max_hours input field
+                $('#max_hours').val(maxHours);
+            }
+            else
+            {
+                $('#max_hours').val(0);
+            }
+        });
+
 
 
     // Filter table rows based on search term
@@ -380,6 +409,7 @@ $(document).ready(function () {
         var flying_hours = $('#flying_hours').val();
         var details = $('#details').val();
         var max_hours = $('#max_hours').val();
+        var airbase = "<?php echo $_SESSION['login_airbase']; ?>";
         $.ajax({
             url:'ajax.php?action=add_aircraft_stgchart',
             data: {
@@ -388,7 +418,8 @@ $(document).ready(function () {
                 tail_id: tail_id,
                 flying_hours: flying_hours,
                 details: details,
-                max_hours: max_hours
+                max_hours: max_hours,
+                airbase: airbase
             },
             method: 'POST',
             success:function(resp){

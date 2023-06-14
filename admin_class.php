@@ -433,6 +433,7 @@ Class Action {
 		$project_name = $_POST['aircraft']."_".$_POST['tail_number'];
 		$startdate = $_POST['start_date'];
 		$inspection_type = $_POST['inspection_type'];
+		$airbase = $_POST['airbase'];
 
 		// Check if project name already exists
 		$sql_check = "SELECT * FROM project_tasks WHERE project_name = '$project_name'";
@@ -445,7 +446,7 @@ Class Action {
 			if ($_POST['req'] == 'stg') {
 				$enddate = $_POST['exp_date'];
 				$details = $_POST['details'];
-				$sql_insert = "INSERT INTO project_tasks (project_name, phase_name, task_name, trade, start_date, end_date, duration, completed_duration, inspectionType, details) VALUES ('$project_name', 'stg', '', '', '$startdate', '$enddate', '0', '0', '$inspection_type', '$details\n')";
+				$sql_insert = "INSERT INTO project_tasks (project_name, phase_name, task_name, trade, start_date, end_date, duration, completed_duration, inspectionType, details, airbase) VALUES ('$project_name', 'stg', '', '', '$startdate', '$enddate', '0', '0', '$inspection_type', '$details\n', '$airbase')";
 				$result_check = $this->db->query($sql_insert);
 				if(!$result_check) {
 					echo "Error: " . mysqli_error($this->db);
@@ -484,7 +485,7 @@ Class Action {
 						$enddate = date('Y-m-d', strtotime($startdate . ' + ' . ($duration) . ' days'));
 					}
 				
-					$sql_insert = "INSERT INTO project_tasks (project_name, phase_name, task_name, trade, start_date, end_date, duration, completed_duration, inspectionType) VALUES ('$project_name', '$phase', '$task', '$trade', '$startdate', '$enddate', '$duration', '0', '$inspection_type')";
+					$sql_insert = "INSERT INTO project_tasks (project_name, phase_name, task_name, trade, start_date, end_date, duration, completed_duration, inspectionType, airbase) VALUES ('$project_name', '$phase', '$task', '$trade', '$startdate', '$enddate', '$duration', '0', '$inspection_type', '$airbase')";
 					$result_check = $this->db->query($sql_insert);
 					if(!$result_check) {
 						echo "Error: " . mysqli_error($this->db);
@@ -497,7 +498,7 @@ Class Action {
 			{
 				$enddate = $_POST['exp_date'];
 				$details = $_POST['details'];
-				$sql_insert = "INSERT INTO project_tasks (project_name, phase_name, task_name, trade, start_date, end_date, duration, completed_duration, inspectionType, details) VALUES ('$project_name', '', '', '', '$startdate', '$enddate', '0', '0', '$inspection_type', '$details')";
+				$sql_insert = "INSERT INTO project_tasks (project_name, phase_name, task_name, trade, start_date, end_date, duration, completed_duration, inspectionType, details, airbase) VALUES ('$project_name', '', '', '', '$startdate', '$enddate', '0', '0', '$inspection_type', '$details', '$airbase')";
 				$result_check = $this->db->query($sql_insert);
 				if(!$result_check) {
 					echo "Error: " . mysqli_error($this->db);
@@ -532,6 +533,7 @@ Class Action {
 		$flying_hours = $_POST['flying_hours'];
 		$details = $_POST['details'];
 		$max_hours = $_POST['max_hours'];
+		$airbase = $_POST['airbase'];
 
 		// Check if project name already exists
 		$sql_check = "SELECT * FROM stgchart WHERE aircraft = '$aircraft' and tail_id = '$tail_id'";
@@ -542,7 +544,7 @@ Class Action {
 			return 0;
 		} else {
 			if ($_POST['req'] == 'stgchart') {
-				$sql_insert = "INSERT INTO stgchart (aircraft, tail_id, flying_hours, details, max_hours) VALUES ('$aircraft', '$tail_id', '$flying_hours', '$details', '$max_hours\n')";
+				$sql_insert = "INSERT INTO stgchart (aircraft, tail_id, flying_hours, details, max_hours, airbase) VALUES ('$aircraft', '$tail_id', '$flying_hours', '$details', '$max_hours\n','$airbase')";
 				$result_check = $this->db->query($sql_insert);
 				if(!$result_check) {
 					echo "Error: " . mysqli_error($this->db);

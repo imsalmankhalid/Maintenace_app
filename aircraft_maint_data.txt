@@ -1,4 +1,9 @@
 
+$max_hours['K8'] = 500;
+$max_hours['T37'] = 500;
+$max_hours['SMK'] = 100;
+
+
 $phase_arrays['K8']['500'] = array(
 				array("Acceptance Phase", "Documents Check", "All Trade", 1, 1),
 				array("Acceptance Phase", "General Inspection", "All Trade", 1, 1),
@@ -315,3 +320,4 @@ $phase_arrays['T37'][1000] = array(
 				array("FLT LINE PHASE", "taxi test", "9c-A/C", 1, 1),
 				array("FLT LINE PHASE", "FCF", "9d-A/C", 1, 1),
 				array("FLT LINE PHASE", "acceptance by flight line and acceptance entries clearance", "9e-A/C", 1, 1));
+

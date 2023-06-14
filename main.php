@@ -8,7 +8,7 @@ if($_SESSION['login_type'] != 1)
 
 <?php
     // fetch data from database
-    $qry = $conn->query("SELECT id, project_name, details,inspectionType,  MAX(end_date) AS last_end_date FROM project_tasks GROUP BY project_name");
+    $qry = $conn->query("SELECT id, project_name, details,inspectionType,  MAX(end_date) AS last_end_date FROM project_tasks where airbase ='".$_SESSION['login_airbase']."' GROUP BY project_name");
 
     // initialize array to store data
     $data = array();
@@ -33,7 +33,7 @@ if($_SESSION['login_type'] != 1)
         $start = new DateTime($start_date);
         $end = new DateTime($last_end_date);
         $duration = $end->diff($start)->format('%a');
-
+        $status = 0;
         // calculate percentage of duration and completed duration
         $result = $conn->query("SELECT SUM(completed_duration) AS total_completed_duration FROM project_tasks WHERE project_name = '$project_name'");
         if ($result->num_rows > 0) {

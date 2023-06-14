@@ -42,7 +42,7 @@
 	<div class="card card-outline card-primary">
 		<div class="card-body">
         <div class="card-header" style="font-weight: bold; font-size: 20px;">
-                Staggering Database
+                Base Database
         </div>
 			<form action="" id="addAircraft">
             <div class="form-group row mb-3">
@@ -218,7 +218,7 @@
 <div class="card card-outline card-success">
     <div class="card-body">
         <div class="card-header" style="font-weight: bold; font-size: 20px;">
-            Maintenance Aircraft List
+            Staggering Aircraft List
         </div>
         <div class="card-body">
             <input type="text" id="search-input" class="form-control mb-3" placeholder="Search">
@@ -330,7 +330,7 @@ $(document).ready(function () {
         var start_date = $('#start_date').val();
         var details = $('#details').val();
         var exp_date = $('#exp_date').val();
-        console.log(hours);
+        var airbase = "<?php echo $_SESSION['login_airbase']; ?>";
         $.ajax({
             url:'ajax.php?action=add_aircraft_maint',
             data: {
@@ -341,7 +341,8 @@ $(document).ready(function () {
                 hours: hours,
                 start_date: start_date,
                 details: details,
-                exp_date:exp_date
+                exp_date:exp_date,
+                airbase: airbase
             },
             method: 'POST',
             success:function(resp){
