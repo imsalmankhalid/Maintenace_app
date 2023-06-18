@@ -92,7 +92,7 @@
 
 </body>
 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 	<script>
         function load_tail_id()
         {
@@ -102,6 +102,7 @@
                     type: "POST",
                     data: {aircraft_id: aircraft_id, airbase:"<?php echo $_SESSION['login_airbase']; ?>" },
                     success: function(data){
+                        
                         data = JSON.parse(data);
                         var options = "<option>Select Tail ID</option>";
                         $.each(data, function(index, value){
@@ -142,8 +143,9 @@
 				$.ajax({
 					url: "load_maint_data.php",
 					type: "POST",
-					data: {project_name: project_name},
+					data: {project_name: project_name, airbase:"<?php echo $_SESSION['login_airbase']; ?>" },
 					success: function(data){
+                        console.log(data);
                         data = JSON.parse(data);
                         var options =  "<option>Select Phase</option>";
                         $.each(data, function(index, value){
@@ -173,7 +175,7 @@
 				$.ajax({
 					url: "load_maint_data.php",
 					type: "POST",
-					data: {project_name: project_name, phase_name: phase_name},
+					data: {project_name: project_name, phase_name: phase_name, airbase:"<?php echo $_SESSION['login_airbase']; ?>" },
 					success: function(data){
                         data = JSON.parse(data);
                         var options = "<option>Select Task</option>";
@@ -192,7 +194,7 @@
 				$.ajax({
 					url: "load_maint_data.php",
 					type: "POST",
-					data: {project_name: project_name, phase_name: phase_name, task_name: task_name},
+					data: {project_name: project_name, phase_name: phase_name, task_name: task_name, airbase:"<?php echo $_SESSION['login_airbase']; ?>" },
 					success: function(data){
                         console.log(data);
                         data = JSON.parse(data)[0];

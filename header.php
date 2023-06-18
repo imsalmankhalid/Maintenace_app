@@ -43,6 +43,6 @@
   <script src="assets/plugins/jquery-ui/jquery-ui.min.js"></script>
  <!-- summernote -->
   <link rel="stylesheet" href="assets/plugins/summernote/summernote-bs4.min.css">
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-  <script src="assets/plugins/chartjs/Chart.min.js"></script>
+  <script type="text/javascript" src="assets/plugins/loader.js"></script>
+  <script src="assets/plugins/chart.js/Chart.min.js"></script>
 </head>
