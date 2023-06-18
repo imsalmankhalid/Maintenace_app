@@ -26,14 +26,19 @@
 						<div class="form-group">
 							<label for="" class="control-label">User Base</label>
 							<select name="airbase" id="airbase" class="custom-select custom-select-sm">
-							<?php 
+								<?php 
 								$bases = $conn->query("SELECT * FROM bases ");
-								while($row= $bases->fetch_assoc()):
+								while($row = $bases->fetch_assoc()):
+									$selected = '';
+									if (isset($airbase) && $airbase == $row['name']) {
+										$selected = 'selected';
+									}
 								?>
-									<option value="<?php echo $row['name'] ?>" ><?php echo $row['name'] ?></option>
+									<option value="<?php echo $row['name'] ?>" <?php echo $selected ?>><?php echo $row['name'] ?></option>
 								<?php endwhile; ?>
 							</select>
 						</div>
+
 						<?php else: ?>
 							<input type="hidden" name="type" value="3">
 						<?php endif; ?>

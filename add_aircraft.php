@@ -41,7 +41,7 @@
 	<div class="card card-outline card-primary">
 		<div class="card-body">
         <div class="card-header" style="font-weight: bold; font-size: 20px;">
-                Base Database
+                Maintenance Database
             </div>
 			<form action="" id="addAircraft">
             <div class="form-group row mb-3">
@@ -195,9 +195,12 @@
 
 <div class="card card-outline card-success">
     <div class="card-body">
-            <div class="card-header" style="font-weight: bold; font-size: 20px;">
-                Maintenance Aircraft List
+        <div class="card-header" style="font-weight: bold; font-size: 20px;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>Maintenance Aircraft List</div>
+                <button class="btn btn-flat btn-primary" onclick="printCard()"><i class="fa fa-print"></i>Print</button>
             </div>
+        </div>
             <div class="card-body">
                 <input type="text" id="search-input" class="form-control mb-3" placeholder="Search">
                 <table class="table table-hover table-condensed" id="list">
@@ -222,15 +225,7 @@
                                 <td class="text-center"><?php echo $i + 1 ?></td>
                                 <td class="text-center"><?php echo $row['aircraft_name']; ?></td>
                                 <td class="text-center"><?php echo $row['tail_id']; ?></td>
-                                <td class="text-center">
-                                <?php
-                                    if ($row['inspectionType'] == 'scheduled') {
-                                        echo 'Maintenance';
-                                    } elseif ($row['inspectionType'] == 'unscheduled') {
-                                        echo 'Flying';
-                                    }
-                                ?>
-                            </td>
+                                <td class="text-center"><?php echo $row['inspectionType']; ?></td>
                                 <td><?php echo $row['start_date'] ?></td>
                                 <td><?php echo $row['completion_date'] ?></td>
                                 <td><?php echo $row['duration'] ?></td>
@@ -251,9 +246,14 @@
 </div>
 
 
-
 <script>
-
+    function printCard() {
+        var printContents = document.getElementById("list").outerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
 $(document).ready(function () {
     console.log(<?php echo json_encode($json_array); ?>);
     $(".delete-btn").click(function () {

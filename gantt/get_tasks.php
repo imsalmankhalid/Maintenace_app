@@ -1,6 +1,6 @@
 <?php
 // Connect to your database (replace the credentials with your own)
-include 'connect.php';
+include 'db_connect.php';
 
 // Get the tasks data from your database
 $sql = "SELECT * FROM tasks";

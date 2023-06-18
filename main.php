@@ -8,69 +8,77 @@ if($_SESSION['login_type'] != 1)
 
 <?php
     // fetch data from database
-    $qry = $conn->query("SELECT id, project_name, details,inspectionType,  MAX(end_date) AS last_end_date FROM project_tasks where airbase ='".$_SESSION['login_airbase']."' GROUP BY project_name");
+    $qry = $conn->query("SELECT id, project_name, details,inspectionType,  MAX(end_date) AS last_end_date FROM project_tasks where airbase ='".$_SESSION['login_airbase']."' AND phase_name != 'stg' GROUP BY project_name");
 
     // initialize array to store data
     $data = array();
 
     // loop through each row and calculate required fields
     while ($row = $qry->fetch_assoc()) {
-        $project_id = $row['id'];
-        $project_name = $row['project_name'];
-        $details = $row['details'];
-        $last_end_date = $row['last_end_date'];
-        $inspectionType = $row['inspectionType'];
-        $start_date = '';
-        $flyingdate = '';
+        
+      $project_name = $row['project_name'];
+      $details = $row['details'];
+      $last_end_date = $row['last_end_date'];
+      $inspectionType = $row['inspectionType'];
+      $start_date = '';
+      $flyingdate = '';
 
-        // fetch the start date for the project
-        $result = $conn->query("SELECT start_date FROM project_tasks WHERE project_name = '$project_name' ORDER BY start_date ASC LIMIT 1");
-        if ($result->num_rows > 0) {
-            $start_date = $result->fetch_assoc()['start_date'];
-        }
+      // fetch the start date for the project
+      $result = $conn->query("SELECT start_date FROM project_tasks WHERE project_name = '$project_name' ORDER BY start_date ASC LIMIT 1");
+      if ($result->num_rows > 0) {
+          $start_date = $result->fetch_assoc()['start_date'];
+      }
 
-        // calculate duration by subtracting start date from last end date
-        $start = new DateTime($start_date);
-        $end = new DateTime($last_end_date);
-        $duration = $end->diff($start)->format('%a');
-        $status = 0;
-        // calculate percentage of duration and completed duration
-        $result = $conn->query("SELECT SUM(completed_duration) AS total_completed_duration FROM project_tasks WHERE project_name = '$project_name'");
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            if ($row['total_completed_duration'] === null ) {
-                $status = 0;
-            } else {
-                if($duration > 0)
-                {
-                    $status = round($row['total_completed_duration'] / $duration * 100);
-                    if($status == 100)
-                        $flyingdate = new DateTime();
-                }
-            }
-        } else {
-            $status = 0;
-        }
+      // calculate duration by subtracting start date from last end date
+      $start = new DateTime($start_date);
+      $end = new DateTime($last_end_date);
+      $duration = $end->diff($start)->format('%a');
+      $status = 0;
+      // calculate percentage of duration and completed duration
+      $result = $conn->query("SELECT status, inspectionType, SUM(duration) as total_duration, SUM(completed_duration) AS total_completed_duration FROM project_tasks WHERE project_name = '$project_name'");
+      if ($result->num_rows > 0) {
+          $row = $result->fetch_assoc();
+          $total_duration = $row['total_duration'];
+          if($row['inspectionType'] === 'unscheduled')
+          {
+              $status = $row['status'];
+          }
+          else
+          {
+              if ($row['total_completed_duration'] === null ) {
+                  $status = 0;
+              } else {
+                  if($total_duration > 0)
+                  {
+                      $status = round(($row['total_completed_duration'] / $row['total_duration']) * 100);
+                  
+                      if($status >= 100)
+                          $status = 100;
 
-        // split project name by underscore to get aircraft name and tail id
-        $name_parts = explode('_', $project_name);
-        $aircraft_name = $name_parts[0];
-        $tail_id = $name_parts[1];
+                  }
+              }
+          } 
+      }
+      if($status == 100)
+          $flyingdate = date('Y-m-d H:i:s');
+      // split project name by underscore to get aircraft name and tail id
+      $name_parts = explode('_', $project_name);
+      $aircraft_name = $name_parts[0];
+      $tail_id = $name_parts[1];
 
-        // add data to array
-        $data[] = array(
-            'project_id' => $project_id,
-            'aircraft_name' => $aircraft_name,
-            'tail_id' => $tail_id,
-            'start_date' => $start_date,
-            'completion_date' => $last_end_date,
-            'duration' => $duration,
-            'status' => $status,
-            'flydate' => $flyingdate,
-            'inspectionType' => $inspectionType,
-            'details' => $details
-        );
-    }
+      // add data to array
+      $data[] = array(
+          'aircraft_name' => $aircraft_name,
+          'tail_id' => $tail_id,
+          'start_date' => $start_date,
+          'completion_date' => $last_end_date,
+          'duration' => $duration,
+          'status' => $status,
+          'flydate' => $flyingdate,
+          'inspectionType' => $inspectionType,
+          'details' => $details
+      );
+  }
 
     // output data as HTML table
 ?>
@@ -142,9 +150,12 @@ if($_SESSION['login_type'] != 1)
       <div class="row">
         <div class="col">
           <div class="row">
-              <div class="card card-outline card-success col-12">
+              <div class="card card-outline card-success col-12" id="status">
                 <div class="card-header">
-                  <b>Project Status </b>
+                <div class="d-flex justify-content-between align-items-center">
+                  <b>Maintenance Aircraft Status </b>
+                  <button class="btn btn-flat btn-primary" onclick="printCard()"><i class="fa fa-print"></i>Print</button>
+                </div>
                 </div>
                 <div class="card-body p-0" style="overflow: auto;">>
                 <div class="table-responsive">
@@ -210,9 +221,12 @@ if($_SESSION['login_type'] != 1)
             </div>
         </div>
         <div class="col">
-          <div class="card card-outline card-success">
+          <div class="card card-outline card-success" id="hrcy">
               <div class="card-header">
-                <b>Wing Hirarchy - <?php echo $_SESSION['login_airbase'] ?> </b>
+              <div class="d-flex justify-content-between align-items-center">
+                <b>Wing Hierarchy  - <?php echo $_SESSION['login_airbase'] ?> </b>
+                <button class="btn btn-flat btn-primary" onclick="printhrc()"><i class="fa fa-print"></i>Print</button>
+                </div>
               </div>
               <div class="card-body p-0">
                   <div id="chart_div"></div>
@@ -330,4 +344,18 @@ if($_SESSION['login_type'] != 1)
             }
         }
       };
+      function printCard() {
+        var printContents = document.getElementById("status").outerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+    function printhrc() {
+        var printContents = document.getElementById("hrcy").outerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
    </script>

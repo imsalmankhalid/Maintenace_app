@@ -1,6 +1,6 @@
 
 {
-"Risalpur":
+"Risalpur Base":
     {
         "cols":[
             {"id":"name",   "label":"Name", "type":"string"},
@@ -35,7 +35,7 @@
             {"c":[{"v":"NCO I/C COE K-8 I/C Office"}, {"v":"WO I/C COE K-8"}]}
         ]
     },
-"Rawalpindi":
+"Rawalpindi base":
     {
         "cols":[
             {"id":"name",   "label":"Name", "type":"string"},

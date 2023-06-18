@@ -1,6 +1,6 @@
 <?php
 
-include 'connect.php';
+include 'db_connect.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get input values from form
     $taskId = $_POST['task_id'];

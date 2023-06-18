@@ -47,12 +47,15 @@
                 </a>
           </li>
 
-           <li class="nav-item">
-                <a href="./index.php?page=reports" class="nav-link nav-reports">
-                  <i class="fas fa-th-list nav-icon"></i>
-                  <p>Report</p>
-                </a>
-          </li>
+
+        <li class="nav-item">
+            <a href="./index.php?page=reports" class="nav-link nav-reports">
+                <i class="fas fa-th-list nav-icon"></i>
+                <p>Report</p>
+            </a>
+        </li>
+
+
         <li class="nav-item">
             <a href="#" class="nav-link nav-edit_project nav-view_project">
               <i class="nav-icon fas fa-layer-group"></i>
@@ -87,13 +90,13 @@
         <li class="nav-item">
           <a href="./index.php?page=add_aircraft_stg" class="nav-link add_aircraftt">
           <i class="fas fa-list nav-icon"></i>
-            <p>Staggering Database</p>
+            <p>Base Record</p>
           </a>
         </li>
         <li class="nav-item">
           <a href="./index.php?page=add_aircraft_stgchart" class="nav-link add_aircraftt">
           <i class="fas fa-list nav-icon"></i>
-            <p>Staggering Charts</p>
+            <p>Stagger Charts</p>
           </a>
         </li>
           <?php if($_SESSION['login_type'] == 1): ?>
@@ -120,6 +123,8 @@
               </li>
             </ul>
           </li>
+          <?php endif; ?>
+          <?php if($_SESSION['login_type'] < 3): ?>
           <li class="nav-item">
           <a href="./index.php?page=attendance" class="nav-link nav-attendance">
             <i class="fas fa-check-square nav-icon"></i>
@@ -133,7 +138,7 @@
           </a>
         </li>
         <?php endif; ?>
-        <?php if($_SESSION['login_type'] != 3): ?>
+        <?php if($_SESSION['login_type'] == 1): ?>
            <li class="nav-item">
                 <a href="./index.php?page=bases" class="nav-link nav-reports">
                   <i class="fas fa-fighter-jet nav-icon"></i>

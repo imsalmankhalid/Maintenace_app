@@ -4,7 +4,7 @@ include 'db_connect.php';
 
     $where = "";
 
-    $qry = "SELECT DISTINCT SUBSTRING_INDEX(project_name, '_', 1) AS project_name FROM project_tasks";
+    $qry = "SELECT DISTINCT SUBSTRING_INDEX(project_name, '_', 1) AS project_name FROM project_tasks where airbase='" . $_REQUEST['airbase'] . "' AND phase_name <> 'stg'";
 
     if(isset($_REQUEST['aircraft_id'])){
         $aircraft = $_REQUEST['aircraft_id'];
@@ -14,9 +14,8 @@ include 'db_connect.php';
     }
 
     if(isset($_REQUEST['project_name'])){
-        $where = "WHERE project_name = '{$_REQUEST['project_name']}'";
-        $qry ="SELECT DISTINCT phase_name, status, details FROM project_tasks ".$where;
-       
+        $where = "WHERE project_name = '{$_REQUEST['project_name']}' "; 
+        $qry = "SELECT DISTINCT phase_name FROM project_tasks ".$where." AND phase_name <> 'stg'";       
     }
 
     if(isset($_REQUEST['project_name']) && isset($_REQUEST['phase_name'])){

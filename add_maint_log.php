@@ -100,7 +100,7 @@
                 $.ajax({
                     url: "load_maint_data.php",
                     type: "POST",
-                    data: {aircraft_id: aircraft_id},
+                    data: {aircraft_id: aircraft_id, airbase:"<?php echo $_SESSION['login_airbase']; ?>" },
                     success: function(data){
                         data = JSON.parse(data);
                         var options = "<option>Select Tail ID</option>";
@@ -117,7 +117,7 @@
                 $.ajax({
                     url: "load_maint_data.php",
                     type: "POST",
-                    data: {type: "aircraft"},
+                    data: {type: "aircraft", airbase:"<?php echo $_SESSION['login_airbase']; ?>" },
                     success: function(data){
                         data = JSON.parse(data);
                         var options ="";
@@ -147,11 +147,12 @@
                         data = JSON.parse(data);
                         var options =  "<option>Select Phase</option>";
                         $.each(data, function(index, value){
-                            options += "<option value='" + value.phase_name + "'>" + value.phase_name + "</option>";
+                                options += "<option value='" + value.phase_name + "'>" + value.phase_name + "</option>";
                         });
                         $("#phase_name").html(options);
+                        console.log(data);
                         if (data.length === 1) {
-                            console.log(data);
+                            
                             $("#sch").hide();
                             $("#unsch").show();
                             $('#status').val(data[0].status);

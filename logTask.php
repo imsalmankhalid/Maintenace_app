@@ -2,7 +2,7 @@
 <html>
 <head>
 <?php
-include 'connect.php'; ?>
+include 'db_connect.php'; ?>
     <title>Add Task Form</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

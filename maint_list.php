@@ -86,7 +86,7 @@ function loadGanttChart() {
     }elseif($_SESSION['login_type'] == 3){
       $where = " where concat('[',REPLACE(user_ids,',','],['),']') LIKE '%[{$_SESSION['login_id']}]%' ";
     }
-    $result = $conn->query("SELECT distinct project_name FROM project_tasks where inspectionType = 'scheduled' order by project_name asc");
+    $result = $conn->query("SELECT distinct project_name FROM project_tasks where inspectionType = 'scheduled' and airbase ='".$_SESSION['login_airbase']."' order by project_name asc");
   ?>
 
 <div class="card">
@@ -103,7 +103,11 @@ function loadGanttChart() {
   <div class="card-body">
     <div class="tab-content">
       <div class="tab-pane fade show active" id="tab1">
-      <label for="project-dropdown">Select a Project:</label>
+      <div class="d-flex justify-content-between align-items-center">
+          <label for="project-dropdown">Select a Project:</label>
+          
+          <button class="btn btn-flat btn-primary" onclick="printCard()"><i class="fa fa-print"></i>Print</button>
+      </div>
         <select id="project-dropdown" onchange="loadGanttChart()">
           <?php while ($row = $result->fetch_assoc()) { ?>
             <option value="<?php echo $row['project_name']; ?>"><?php echo $row['project_name']; ?></option>
@@ -115,10 +119,13 @@ function loadGanttChart() {
           <div id="chart_div"></div>
       </div>
       <div class="tab-pane fade" id="tab2">
+      <div class="d-flex justify-content-between align-items-center">
         <label for="project-dropdown2">Select a Project:</label>
+        <button class="btn btn-flat btn-primary" onclick="printCard2()"><i class="fa fa-print"></i>Print</button>
+          </div>
         <select id="project-dropdown2">
         <?php
-            $result = $conn->query("SELECT distinct project_name FROM project_tasks order by project_name asc");
+            $result = $conn->query("SELECT distinct project_name FROM project_tasks where phase_name != 'stg' AND airbase ='".$_SESSION['login_airbase']."' order by project_name asc");
           ?>
           <?php while ($row = $result->fetch_assoc()) { ?>
             <option value="<?php echo $row['project_name']; ?>"><?php echo $row['project_name']; ?></option>
@@ -147,10 +154,15 @@ function loadGanttChart() {
                                   </tr>
                               </thead>
                               <tbody>
-                              <?php $result = $conn->query("SELECT * FROM project_tasks WHERE phase_name != 'stg' ORDER BY project_name ASC"); ?>
-                              <?php while ($row = $result->fetch_assoc()) { ?>
+                              <?php
+                                $result = $conn->query("SELECT * FROM project_tasks WHERE phase_name != 'stg' ORDER BY id ASC");
+                                $count = 0; // Counter variable
+
+                                while ($row = $result->fetch_assoc()) {
+                                  $count = $count + 1;
+                                ?>
                                 <tr>
-                                  <td class="text-center"><?php echo $row['id']; ?></td>
+                                  <td class="text-center"><?php echo $count; ?></td>
                                   <td class="text-center"><?php echo $row['project_name']; ?></td>
                                   <td class="text-center"><?php echo $row['phase_name']; ?></td>
                                   <td><?php echo $row['task_name'] ?></td>
@@ -183,7 +195,20 @@ function loadGanttChart() {
 
 </div>
 <script>
-
+    function printCard() {
+        var printContents = document.getElementById("tab1").outerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+    function printCard2() {
+        var printContents = document.getElementById("tab2").outerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
 // Filter table rows based on search term
     $("#search-input").on("keyup", function() {
         var searchTerm = $(this).val().toLowerCase();

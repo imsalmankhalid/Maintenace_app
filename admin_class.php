@@ -435,26 +435,33 @@ Class Action {
 		$inspection_type = $_POST['inspection_type'];
 		$airbase = $_POST['airbase'];
 
-		// Check if project name already exists
-		$sql_check = "SELECT * FROM project_tasks WHERE project_name = '$project_name'";
-		$result_check = $save = $this->db->query($sql_check);
-		
-		if ($result_check->num_rows > 0) {
-			echo "Project name already exists!";
-			return 0;
-		} else {
-			if ($_POST['req'] == 'stg') {
-				$enddate = $_POST['exp_date'];
-				$details = $_POST['details'];
-				$sql_insert = "INSERT INTO project_tasks (project_name, phase_name, task_name, trade, start_date, end_date, duration, completed_duration, inspectionType, details, airbase) VALUES ('$project_name', 'stg', '', '', '$startdate', '$enddate', '0', '0', '$inspection_type', '$details\n', '$airbase')";
-				$result_check = $this->db->query($sql_insert);
-				if(!$result_check) {
-					echo "Error: " . mysqli_error($this->db);
-					return 0;
-				}
-				return 1;
+		if ($_POST['req'] == 'stg') {
+			// Check if project name already exists
+			$sql_check = "SELECT * FROM project_tasks WHERE project_name = '$project_name' AND phase_name = 'stg'";
+			$result_check = $save = $this->db->query($sql_check);
+			if ($result_check->num_rows > 0) {
+				echo "Project name already exists!";
+				return 0;
 			}
 
+			$enddate = $_POST['exp_date'];
+			$details = $_POST['details'];
+			$sql_insert = "INSERT INTO project_tasks (project_name, phase_name, task_name, trade, start_date, end_date, duration, completed_duration, inspectionType, details, airbase) VALUES ('$project_name', 'stg', '', '', '$startdate', '$enddate', '0', '0', '$inspection_type', '$details\n', '$airbase')";
+			$result_check = $this->db->query($sql_insert);
+			if(!$result_check) {
+				echo "Error: " . mysqli_error($this->db);
+				return 0;
+			}
+			return 1;
+		}
+
+			// Check if project name already exists
+			$sql_check = "SELECT * FROM project_tasks WHERE project_name = '$project_name' AND phase_name != 'stg' AND airbase='$airbase'";
+			$result_check = $save = $this->db->query($sql_check);
+			if ($result_check->num_rows > 0) {
+				echo "Project name already exists!";
+				return 0;
+			}
 			$contents = file_get_contents('aircraft_maint_data.txt');
 			eval($contents);
 	
@@ -506,7 +513,6 @@ Class Action {
 				}
 				return 1;
 			}
-		}
 	}
 
 
@@ -514,10 +520,10 @@ Class Action {
 
 		if ($_POST['req'] == 'delete') {
 			// Handle delete request
-			$project_name = $_POST['project_name'];
+			$id = $_POST['id'];
 	
 			// Perform delete operation based on the project name
-			$sql_delete = "DELETE FROM project_tasks WHERE project_name = '$project_name'";
+			$sql_delete = "DELETE FROM stgchart WHERE id = '$id'";
 			$result_delete = $save = $this->db->query($sql_delete);
 	
 			if ($result_delete) {

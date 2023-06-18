@@ -110,11 +110,11 @@
                     <select id="aircraftSelect" name="aircraftSelect" class="form-control">
                         <option value="">-- Select an aircraft --</option>
                         <?php 
-                            $result = $conn->query("SELECT aircraft, tail_id FROM stgchart where airbase ='".$_SESSION['login_airbase']."'");
+                            $result = $conn->query("SELECT * FROM stgchart where airbase ='".$_SESSION['login_airbase']."'");
                             while ($row = $result->fetch_assoc()) {
                                 $projectName = $row['aircraft']."_".$row['tail_id'];
                         ?>
-                            <option value="<?php echo $projectName; ?>"><?php echo $projectName; ?></option>
+                            <option value="<?php echo $row['id']; ?>"><?php echo $projectName; ?></option>
                         <?php } ?>
                     </select>
                 </div>
@@ -126,7 +126,7 @@
                     </div>
 
                     <label for="status">Flying Hours:</label>
-                    <input type="number" id="status" name="status" class="form-control" min="0" max="100" required>
+                    <input type="number" id="status" name="status" class="form-control" step="0.10" required>
                 </div>
                 <div class="form-group">
                     <button class="btn btn-primary" type="submit" name="update">Update</button>
@@ -138,7 +138,7 @@
                         $details = $_POST['details'];
 
                         // Perform the update operation
-                        $updateQuery = "UPDATE project_tasks SET status = $status, details = $details WHERE project_name = '$projectName'";
+                        $updateQuery = "UPDATE stgchart SET flying_hours = '$status', details = '$details' WHERE id = '$projectName'";
                         if ($conn->query($updateQuery)) {
                             echo "Update successful! ";
                         } else {
@@ -208,43 +208,54 @@
     }
 ?>
 
-<div class="card card-outline card-success">
 <div class="card-header" style="font-weight: bold; font-size: 20px;">
-        Stagger Aircraft List (Flying Hours Graph)
-    </div>
+    Stagger Aircraft List (Flying Hours Graph)
+</div>
 <div class="card-body">
-
-            <form action="" id="showStgChart">
-                <div class="form-group row mb-3">
-                    <label for="aircraft" class="col-sm-2 col-form-label">Aircraft:</label>
-                    <div class="col-sm-4">
-                        <select id="aircraftstg" name="aircraftstg" class="form-control" onchange="loadChart()">
-                            <option value="">-- Select an aircraft --</option>
-                            <?php 
-                            $result = $conn->query("SELECT distinct aircraft FROM stgchart");
-                            while ($row = $result->fetch_assoc()) {
-                                $projectName = $row['aircraft'];
-                            ?>
-                            <option value="<?php echo $projectName; ?>"><?php echo $projectName; ?></option>
-                        <?php } ?>
-                        </select>
-                    </div>
-                </div>
-            </form>
-            <style>
-    canvas {
-      max-width: 1000px;
-    }
-  </style>
+    <button class="btn btn-flat btn-primary" onclick="printChart()"><i class="fa fa-print"></i>Print</button>
+    <form action="" id="showStgChart">
+        <div class="form-group row mb-3">
+            <label for="aircraft" class="col-sm-2 col-form-label">Aircraft:</label>
+            <div class="col-sm-4">
+                <select id="aircraftstg" name="aircraftstg" class="form-control" onchange="loadChart()">
+                    <option value="">-- Select an aircraft --</option>
+                    <?php 
+                    $result = $conn->query("SELECT distinct aircraft FROM stgchart where airbase ='".$_SESSION['login_airbase']."'");
+                    while ($row = $result->fetch_assoc()) {
+                        $projectName = $row['aircraft'];
+                    ?>
+                    <option value="<?php echo $projectName; ?>"><?php echo $projectName; ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+    </form>
+    <style>
+        canvas {
+            max-width: 1000px;
+        }
+    </style>
     <canvas id="lineChart"></canvas>
+    <table id="suggestionsTable" class="table mt-3">
+        <thead>
+            <tr>
+                <th>Tail ID</th>
+                <th>Suggested Change</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 </div>
-</div>
+    </div>
+
 
 <div class="card card-outline card-success">
     <div class="card-body">
         <div class="card-header" style="font-weight: bold; font-size: 20px;">
-        Stagger Aircraft List
-        </div>
+            <div class="d-flex justify-content-between align-items-center">
+            Stagger Aircraft List
+            <button class="btn btn-flat btn-primary" onclick="printCard()"><i class="fa fa-print"></i>Print</button>
+        </div></div>
         <div class="card-body">
             <input type="text" id="search-input" class="form-control mb-3" placeholder="Search">
             <table class="table table-hover table-condensed" id="list">
@@ -257,6 +268,7 @@
                         <th>Details</th>
                         <th>Max Hours</th>
                         <th>Last Updated</th>
+                        <th class="text-center">Actions</th> <!-- New column for delete button -->
                     </tr>
                 </thead>
                 <tbody id="table-body">
@@ -267,13 +279,14 @@
                     // Query to retrieve data from the stgchart table
                     $sql = "SELECT * FROM stgchart where airbase ='".$_SESSION['login_airbase']."'";
                     $result = $conn->query($sql);
-
+                    $count=0;
                     // Check if there are any rows returned
                     if ($result->num_rows > 0) {
                         // Loop through each row and display the data in table rows
                         while ($row = $result->fetch_assoc()) {
+                            $count=$count+1;
                             echo '<tr>';
-                            echo '<td class="text-center">' . $row['id'] . '</td>';
+                            echo '<td class="text-center">' . $count . '</td>';
                             echo '<td class="text-center">' . $row['aircraft'] . '</td>';
                             echo '<td class="text-center">' . $row['tail_id'] . '</td>';
                             echo '<td class="text-center">' . $row['flying_hours'] . '</td>';
@@ -283,11 +296,14 @@
                             echo '</td>';
                             echo '<td>' . $row['max_hours'] . '</td>';
                             echo '<td>' . $row['last_updated'] . '</td>';
+                            echo '<td class="text-center">'; // New column for delete button
+                            echo '<button class="btn btn-danger delete-btn" data-row="' . htmlspecialchars(json_encode($row)) . '">Delete</button>';
+                            echo '</td>';
                             echo '</tr>';
                         }
                     } else {
                         // If no rows are returned, display a message
-                        echo '<tr><td colspan="7" class="text-center">No data found.</td></tr>';
+                        echo '<tr><td colspan="8" class="text-center">No data found.</td></tr>';
                     }
 
                     // Close the database connection
@@ -301,52 +317,59 @@
 
 
 
-
-
 <script>
-
+    function printCard() {
+        var printContents = document.getElementById("list").outerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+    function printChart() {
+        var canvas = document.getElementById("lineChart");
+        var printWindow = window.open('', '', 'width=' + canvas.width + ', height=' + canvas.height);
+        printWindow.document.write('<html><head><title>Chart Print</title></head><body><img src="' + canvas.toDataURL() + '"/></body></html>');
+        printWindow.document.close();
+        printWindow.print();
+    }
 $(document).ready(function () {
    
     $(".delete-btn").click(function () {
         // Get the row data from the data attribute
-        var rowData = $(this).data("row");
-
-        // Construct the project name
-        var project_name = rowData.aircraft_name + "_" + rowData.tail_id;
-
-        // Send AJAX POST request to the specified URL
+        var rowData = ($(this).data('row'));
+        console.log(rowData.id);
+        var id = rowData.id;
         $.ajax({
-            url:'ajax.php?action=add_aircraft_maint',
-            type: "POST",
+            url:'ajax.php?action=add_aircraft_stgchart',
             data: {
                 req: "delete",
-                project_name: project_name
+                id: id,
             },
-            success: function (response) {
-                if (response == 1) {
-                    alert_toast('Delete successful', "success");
-                    setTimeout(function () {
-                        location.href = 'index.php?page=add_aircraft_stgchart';
-                    }, 2000);
-                } else {
-                    alert_toast(response, "error", 5000);
+            method: 'POST',
+            success:function(resp){
+                
+                if(resp == 1){
+                    alert_toast('Data successfully saved',"success");
+                    setTimeout(function(){
+                        location.href = 'index.php?page=add_aircraft_stgchart'
+                    },2000)
                 }
-            },
-            error: function (xhr, status, error) {
-                // Handle error
-                alert("An error occurred while processing the delete request");
+                else
+                {
+                    alert_toast(resp, "error",50000);
+                }
             }
-        });
+        })
     });
 
     $('#aircraftstg').change(function() {
     var aircraft = $(this).val();
-    
+    var airbase = "<?php echo $_SESSION['login_airbase']; ?>";
     if (aircraft !== '') {
         $.ajax({
             url: 'get_stgchart_data.php',
             type: 'POST',
-            data: { aircraft: aircraft},
+            data: { aircraft: aircraft, airbase:airbase},
             success: function(response) {
                 var options = '<option> -- Select an tail id </option>';
                 if (response.length > 0) {
@@ -405,6 +428,10 @@ var maxHoursArray = <?php echo json_encode($max_hours_array); ?>;
     $('#addAircraft').submit(function(e){
         e.preventDefault(); // Prevent form submission
         var aircraft = $('#aircraft').val();
+        if (aircraft === "") {
+            alert('Please select an aircraft.');
+            exit;
+        }
         var tail_id = $('#tail_id').val();
         var flying_hours = $('#flying_hours').val();
         var details = $('#details').val();
@@ -437,94 +464,71 @@ var maxHoursArray = <?php echo json_encode($max_hours_array); ?>;
             }
         })
     })
-    
+    var chart = null;
     function loadChart() {
-            var aircraft = $('#aircraftstg').val();
-            $.ajax({
-                url: "get_stgchart_data.php",
-                data: { aircraft: aircraft },
-                dataType: "json",
-                success: function (jsonData) {
-                    console.log(jsonData);
-                    var dataArray = jsonData;
+    if (chart) {
+        chart.destroy();
+    }
 
-                       // Extract x-axis labels
-                    var xLabels = jsonData.map(function(data) {
-                    return parseInt(data.tail_id);
-                    });
+    var aircraft = $('#aircraftstg').val();
+    var airbase = "<?php echo $_SESSION['login_airbase']; ?>";
 
-                    // Extract y-axis values
-                    var yValues = jsonData.map(function(data) {
-                    return parseInt(data.flying_hours);
-                    });
+    $.getJSON("get_stgchart_data.php", { aircraft: aircraft, airbase: airbase })
+        .done(function (jsonData) {
+            var dataArray = jsonData;
+            var xLabels = dataArray.map(data => data.tail_id);
+            var yValues = dataArray.map(data => Math.min(parseInt(data.flying_hours), parseInt(data.max_hours)));
 
-                    var maxHours = Math.max.apply(Math, dataArray.map(function(item) {
-                        return parseInt(item.max_hours);
-                    }));
-                    // Create line chart
-                    var ctx = document.getElementById('lineChart').getContext('2d');
-                    var chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: xLabels,
-                        datasets: [{
+            var maxHours = Math.max(...dataArray.map(item => parseInt(item.max_hours)));
+
+            var slopeStart = { x: xLabels[0], y: yValues[0] };
+            var slopeEnd = { x: xLabels[xLabels.length - 1], y: yValues[yValues.length - 1] };
+
+            var ctx = document.getElementById('lineChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: xLabels,
+                    datasets: [{
                         label: 'Flying Hours Chart',
                         data: yValues,
                         fill: false,
-                        pointRadius: 20,
-                        backgroundColor : yValues.map(function(value) {
-                            console.log(value);
+                        pointRadius: 5,
+                        backgroundColor: yValues.map(value => {
                             var percentage = (value / maxHours) * 100;
-                            if (percentage < 50) {
-                                return 'green';
-                            } else if (percentage >= 50 && percentage <= 80) {
-                                return 'yellow';
-                            } else {
-                                return 'red';
-                            }
+                            return percentage < 50 ? 'green' : (percentage <= 80 ? 'yellow' : 'red');
                         }),
-                        borderColor: yValues.map(function(value) {
-                            console.log(value);
+                        borderColor: yValues.map(value => {
                             var percentage = (value / maxHours) * 100;
-                            if (percentage < 50) {
-                                return 'green';
-                            } else if (percentage >= 50 && percentage <= 80) {
-                                return 'yellow';
-                            } else {
-                                return 'red';
-                            }
+                            return percentage < 50 ? 'green' : (percentage <= 80 ? 'yellow' : 'red');
                         })
-                        }]
+                    }, {
+                        label: 'Central Slope',
+                        data: [slopeStart, slopeEnd],
+                        fill: false,
+                        borderColor: 'blue',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { display: true },
+                        y: { min: 0, max: maxHours, display: true }
                     },
-                    options: {
-                        scales: {
-                        x: {
-                            min: 0,
-                            display: true
-                        },
-                        y: {
-                            min: 0,
-                            max: maxHours,
-                            display: true
-                        }
-                        },
-                        plugins: {
+                    plugins: {
                         tooltip: {
                             callbacks: {
                                 label: function (context) {
-                                    var label = 'Tail ID: ' + context.parsed.x + '\n';
-                                    label += 'Flying hours: ' + context.parsed.y;
-                                    return label;
+                                    return `Tail ID: ${context.parsed.x}\nFlying hours: ${context.parsed.y}`;
                                 }
                             }
                         }
                     }
-
-                    }
-                    });
-
-        }
-    });
+                }
+            });
+        });
 }
 
 

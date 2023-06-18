@@ -3,13 +3,28 @@
 include 'db_connect.php';
 
 // Get the tasks data from your database
-$sql = "SELECT * FROM stgchart WHERE aircraft='" . $_REQUEST['aircraft'] . "' ORDER BY flying_hours";
+$sql = "SELECT * FROM stgchart WHERE aircraft='" . $_REQUEST['aircraft'] . "' AND airbase='" . $_REQUEST['airbase'] . "' ORDER BY flying_hours asc";
 if (isset($_REQUEST['tail_id'])) {
-    $sql = "SELECT * FROM stgchart WHERE aircraft='" . $_REQUEST['aircraft'] . "' AND tail_id='" . $_REQUEST['tail_id'] . "'";
+    $sql = "SELECT * FROM stgchart WHERE aircraft='" . $_REQUEST['aircraft'] . "' AND tail_id='" . $_REQUEST['tail_id'] . "' AND airbase='" . $_REQUEST['airbase'] . "'";
 }
 
-
 $result = $conn->query($sql);
+
+// Check if the query was successful
+if (!$result) {
+    // Prepare the error response
+    $error = array(
+        "error" => "Database query failed",
+        "message" => $conn->error
+    );
+
+    // Set the Content-Type header to application/json
+    header('Content-Type: application/json');
+
+    // Encode the error array as JSON and print it
+    echo json_encode($error);
+    exit(); // Stop execution
+}
 
 // Format the tasks data as JSON
 $tasks = array();

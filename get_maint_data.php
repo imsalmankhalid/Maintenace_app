@@ -5,7 +5,7 @@ include 'db_connect.php';
 $projectId = isset($_REQUEST['project_id']) ? $_REQUEST['project_id'] : null;
 
 // Get the tasks data from your database
-$sql = "SELECT * FROM project_tasks WHERE project_name = '" . $projectId . "'";
+$sql = "SELECT * FROM project_tasks WHERE project_name = '" . $projectId . "' AND inspectionType = 'scheduled'";
 
 $result = $conn->query($sql);
 

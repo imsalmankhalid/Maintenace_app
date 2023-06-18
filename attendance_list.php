@@ -6,9 +6,12 @@
 </head>
 <body>
     <div class="container">
-        <div class="card mt-5">
+        <div class="card mt-5" id="list">
             <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
                 <h1 class="text-center">Attendance List</h1>
+                <button class="btn btn-flat btn-primary" onclick="printCard()"><i class="fa fa-print"></i>Print</button>
+                </div>
             </div>
             <div class="card-body">
                 <table class="table table-hover">
@@ -44,3 +47,12 @@
     </div>
 </body>
 </html>
+<script>
+    function printCard() {
+        var printContents = document.getElementById("list").outerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+    </script>

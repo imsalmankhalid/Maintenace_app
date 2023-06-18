@@ -44,6 +44,7 @@
 						<th class="text-center">#</th>
 						<th>Name</th>
 						<th>Location</th>
+						<th>Action</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -52,7 +53,7 @@
 					while($row= $qry->fetch_assoc()):
 					?>
 					<tr>
-						<th class="text-center"><?php $row['id'] ?></th>
+						<th class="text-center"><?php echo $row['id'] ?></th>
 						<td><b><?php echo ucwords($row['name']) ?></b></td>
 						<td><b><?php echo $row['location'] ?></b></td>
 						<td>
