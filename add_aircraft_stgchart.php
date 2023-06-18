@@ -326,6 +326,7 @@
         printWindow.document.close();
         printWindow.print();
     }
+
 $(document).ready(function () {
    
     $(".delete-btn").click(function () {
@@ -472,6 +473,7 @@ var maxHoursArray = <?php echo json_encode($max_hours_array); ?>;
 
       $.getJSON("get_stgchart_data.php", { aircraft: aircraft, airbase: airbase })
         .done(function (jsonData) {
+            console.log(jsonData);
           const tailIds = jsonData.map(item => item.tail_id);
           const flyingHours = jsonData.map(item => item.flying_hours);
           const maxHours = jsonData.map(item => item.max_hours);
@@ -577,9 +579,10 @@ var maxHoursArray = <?php echo json_encode($max_hours_array); ?>;
   }
 
   tableContainer.innerHTML = `
-  <div class="card card-outline card-success">
+  <div class="card card-outline card-success" id="analys">
       <div class="card-header" style="font-weight: bold; font-size: 20px;">
-        <h5 class="card-title">Flying Analysis</h5>
+      <h5 class="card-title">Flying Analysis</h5>
+      <button class="btn btn-flat btn-primary" onclick="printanalysis()"><i class="fa fa-print"></i>Print</button>
       </div>
       <div class="card-body">
         <table class="table table-hover table-condensed" id="list">
@@ -594,5 +597,11 @@ var maxHoursArray = <?php echo json_encode($max_hours_array); ?>;
     function showTablePlaceholder(message) {
       tableContainer.innerHTML = '<p>' + message + '</p>';
     }
-
+    function printanalysis() {
+        var printContent = document.getElementById('analys');
+  var printWindow = window.open('', '', 'width=800, height=600');
+  printWindow.document.write('<html><head><title>Chart Print</title></head><body>' + printContent.innerHTML + '</body></html>');
+  printWindow.document.close();
+  printWindow.print();
+}
 </script>

@@ -3,7 +3,7 @@
 include 'db_connect.php';
 
 // Get the tasks data from your database
-$sql = "SELECT * FROM stgchart WHERE aircraft='" . $_REQUEST['aircraft'] . "' AND airbase='" . $_REQUEST['airbase'] . "' ORDER BY flying_hours asc";
+$sql = "SELECT * FROM stgchart WHERE aircraft='" . $_REQUEST['aircraft'] . "' AND airbase='" . $_REQUEST['airbase'] . "' ORDER BY id asc";
 if (isset($_REQUEST['tail_id'])) {
     $sql = "SELECT * FROM stgchart WHERE aircraft='" . $_REQUEST['aircraft'] . "' AND tail_id='" . $_REQUEST['tail_id'] . "' AND airbase='" . $_REQUEST['airbase'] . "'";
 }
@@ -34,7 +34,7 @@ while ($row = $result->fetch_assoc()) {
         "id" => intval($row["id"]),
         "aircraft" => $row["aircraft"],
         "tail_id" => $row["tail_id"],
-        "flying_hours" => intval($row["flying_hours"]),
+        "flying_hours" => floatval($row["flying_hours"]),
         "details" => $row["details"],
         "max_hours" => intval($row["max_hours"]),
         "last_updated" => $row["last_updated"]
