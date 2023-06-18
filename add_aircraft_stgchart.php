@@ -126,7 +126,7 @@
                     </div>
 
                     <label for="status">Flying Hours:</label>
-                    <input type="number" id="status" name="status" class="form-control" step="0.10" required>
+                    <input type="text" id="status" name="status" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <button class="btn btn-primary" type="submit" name="update">Update</button>
@@ -236,15 +236,9 @@
         }
     </style>
     <canvas id="lineChart"></canvas>
-    <table id="suggestionsTable" class="table mt-3">
-        <thead>
-            <tr>
-                <th>Tail ID</th>
-                <th>Suggested Change</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <div id="tableContainer">
+    <p>Loading table...</p>
+    </div>
 </div>
     </div>
 
@@ -465,71 +459,140 @@ var maxHoursArray = <?php echo json_encode($max_hours_array); ?>;
         })
     })
     var chart = null;
+    var suggestionsTable = null;
+    var tableContainer = document.getElementById('tableContainer');
+
     function loadChart() {
-    if (chart) {
+      if (chart) {
         chart.destroy();
+      }
+
+      var aircraft = $('#aircraftstg').val();
+      var airbase = "<?php echo $_SESSION['login_airbase']; ?>";
+
+      $.getJSON("get_stgchart_data.php", { aircraft: aircraft, airbase: airbase })
+        .done(function (jsonData) {
+          const tailIds = jsonData.map(item => item.tail_id);
+          const flyingHours = jsonData.map(item => item.flying_hours);
+          const maxHours = jsonData.map(item => item.max_hours);
+          const flyingHours2 = jsonData.map(item => Math.min(item.flying_hours, item.max_hours));
+          // Calculate the slope line values
+          const slopeLine = [];
+          const initialFlyingHours = 0;
+          const slope = (maxHours[maxHours.length - 1] - initialFlyingHours) / (flyingHours.length - 1);
+          for (let i = 0; i < flyingHours.length; i++) {
+            slopeLine.push(initialFlyingHours + slope * i);
+          }
+
+          const ctx = document.getElementById('lineChart').getContext('2d');
+          chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: tailIds,
+              datasets: [{
+                label: 'Flying Hours',
+                data: flyingHours2,
+                borderColor: 'blue',
+                backgroundColor: 'rgba(0, 0, 255, 0.2)',
+                pointBackgroundColor: 'blue',
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: false
+              }, {
+                label: 'Slope Line',
+                data: slopeLine,
+                borderColor: 'red',
+                borderDash: [5, 5],
+                fill: false
+              }],
+            },
+            options: {
+              scales: {
+                y: {
+                  min: 0,
+                  max: Math.max(...maxHours),
+                  ticks: {
+                    stepSize: 20
+                  }
+                }
+              },
+              plugins: {
+                tooltip: {
+                  callbacks: {
+                    label: function (context) {
+                      const dataIndex = context.dataIndex;
+                      const yValue = context.raw.y;
+                      const diff = yValue - slopeLine[dataIndex];
+                      return `Difference: ${diff}`;
+                    }
+                  }
+                }
+              }
+            }
+          });
+
+          // Create suggestions table
+          createSuggestionsTable(tailIds, flyingHours, slopeLine);
+        })
+        .fail(function (jqxhr, textStatus, error) {
+          console.log("Error retrieving data: " + error);
+          showTablePlaceholder("Failed to load data.");
+        });
     }
 
-    var aircraft = $('#aircraftstg').val();
-    var airbase = "<?php echo $_SESSION['login_airbase']; ?>";
+    function createSuggestionsTable(tailIds, flyingHours, slopeLine) {
+  suggestionsTable = document.createElement('table');
+  suggestionsTable.classList.add('table', 'table-bordered');
 
-    $.getJSON("get_stgchart_data.php", { aircraft: aircraft, airbase: airbase })
-        .done(function (jsonData) {
-            var dataArray = jsonData;
-            var xLabels = dataArray.map(data => data.tail_id);
-            var yValues = dataArray.map(data => Math.min(parseInt(data.flying_hours), parseInt(data.max_hours)));
+  var tableHeader = suggestionsTable.createTHead();
+  var headerRow = tableHeader.insertRow();
+  headerRow.insertCell().innerHTML = '<b>Tail ID</b>';
+  headerRow.insertCell().innerHTML = '<b>Flying Hours</b>';
+  headerRow.insertCell().innerHTML = '<b>Suggested Value (+/-)</b>';
 
-            var maxHours = Math.max(...dataArray.map(item => parseInt(item.max_hours)));
+  for (let i = 0; i < tailIds.length; i++) {
+    const tailId = tailIds[i];
+    const flyingHour = flyingHours[i];
+    const suggestion = flyingHour - slopeLine[i] > 0 ? 'Over Flying: ' : (flyingHour - slopeLine[i] < 0 ? 'Under Flying: ' : '');
+    const diff = Math.abs(flyingHour - slopeLine[i]).toFixed(2); // Limit decimal to 2 points
 
-            var slopeStart = { x: xLabels[0], y: yValues[0] };
-            var slopeEnd = { x: xLabels[xLabels.length - 1], y: yValues[yValues.length - 1] };
+    const newRow = suggestionsTable.insertRow();
+    newRow.insertCell().textContent = tailId;
+    newRow.insertCell().textContent = flyingHour;
+    
+    const suggestionCell = newRow.insertCell();
+    suggestionCell.innerHTML = suggestion + diff + ' Hours';
+    
+    if (suggestion === 'Over Flying: ') {
+      suggestionCell.style.fontWeight = 'bold';
+      suggestionCell.style.color = 'red';
+    } else if (suggestion === 'Under Flying: ') {
+      suggestionCell.style.fontWeight = 'bold';
+      suggestionCell.style.color = 'blue';
+    }
+    else{
+        suggestionCell.style.fontWeight = 'bold';
+      suggestionCell.style.color = 'green'; 
+    }
+  }
 
-            var ctx = document.getElementById('lineChart').getContext('2d');
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: xLabels,
-                    datasets: [{
-                        label: 'Flying Hours Chart',
-                        data: yValues,
-                        fill: false,
-                        pointRadius: 5,
-                        backgroundColor: yValues.map(value => {
-                            var percentage = (value / maxHours) * 100;
-                            return percentage < 50 ? 'green' : (percentage <= 80 ? 'yellow' : 'red');
-                        }),
-                        borderColor: yValues.map(value => {
-                            var percentage = (value / maxHours) * 100;
-                            return percentage < 50 ? 'green' : (percentage <= 80 ? 'yellow' : 'red');
-                        })
-                    }, {
-                        label: 'Central Slope',
-                        data: [slopeStart, slopeEnd],
-                        fill: false,
-                        borderColor: 'blue',
-                        borderWidth: 2,
-                        borderDash: [5, 5],
-                        pointRadius: 0
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: { display: true },
-                        y: { min: 0, max: maxHours, display: true }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    return `Tail ID: ${context.parsed.x}\nFlying hours: ${context.parsed.y}`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        });
+  tableContainer.innerHTML = `
+  <div class="card card-outline card-success">
+      <div class="card-header" style="font-weight: bold; font-size: 20px;">
+        <h5 class="card-title">Flying Analysis</h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-hover table-condensed" id="list">
+          ${suggestionsTable.outerHTML}
+        </table>
+      </div>
+    </div>
+  `;
 }
 
+
+    function showTablePlaceholder(message) {
+      tableContainer.innerHTML = '<p>' + message + '</p>';
+    }
 
 </script>
