@@ -263,7 +263,7 @@
                             <td><?php echo $row['status'] ?>%</td>
                             <td>
                                 <button class="btn btn-link details-toggle" data-toggle="collapse" data-target="#details-row-<?php echo $i + 1 ?>">Show Details</button>
-                                <div id="details-row-<?php echo $i + 1 ?>" class="collapse">
+                                <div id="details-row-<?php echo $i + 1 ?>" class="collapse show">
                                     <?php echo $row['details'] ?>
                                 </div>
                             </td>
@@ -342,6 +342,7 @@ $(document).ready(function () {
     });
 
 
+    //New Entities of database should be register there
     $('#addAircraft').submit(function(e){
         e.preventDefault(); // Prevent form submission
         var aircraft = $('#aircraft').val();

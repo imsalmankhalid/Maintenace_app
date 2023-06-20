@@ -26,6 +26,14 @@
         return '<option value="' . $aircraft_name . '">' . $aircraft_name . '</option>';
     }, $aircraft_array));
 
+     // Aircraft MOde Array
+     $modeArray = ['IFF mod', 'GOH', 'Periodic Insp'];
+    
+     // Generate the HTML for the aircraft  Mode select options
+     $aircraftMode = implode('', array_map(function($mode) {
+        return '<option value="' . $mode  . '">' . $mode  . '</option>';
+    }, $modeArray));
+
     $aircraft_hours = array();
 
     // Extract array subscript names
@@ -75,6 +83,15 @@
                     </div>
                 </div>
                 <div class="form-group row mb-3">
+                    <label for="aircraftMOd" class="col-sm-2 col-form-label">Aircraft Mod:</label>
+                    <div class="col-sm-10">
+                        <select id="aircraftMod" name="aircraftMod" class="form-control">
+                            <option value="">-- Select an aircraft Mod --</option>
+                            <?php echo  $aircraftMode; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row mb-3">
                     <label for="details" class="col-sm-2 col-form-label">Details:</label>
                     <div class="col-sm-10">
                         <textarea id="details" name="details" class="form-control"></textarea>
@@ -119,6 +136,13 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="aircraftMod">Select Aircraft Mod:</label>
+                    <select id="aircraftMod" name="aircraftMod" class="form-control">
+                        <option value="">-- Select an aircraft Mod --</option>
+                            <?php echo  $aircraftMode; ?>
+                    </select>
+                </div>
+                <div class="form-group">
 
                     <label for="details" >Details:</label>
                     <div class="col">
@@ -134,11 +158,12 @@
                 <?php
                     if (isset($_POST['update'])) {
                         $projectName = $_POST['aircraftSelect'];
+                        $aircraftMod= $_POST['aircraftMod'];
                         $status = $_POST['status'];
                         $details = $_POST['details'];
 
                         // Perform the update operation
-                        $updateQuery = "UPDATE stgchart SET flying_hours = '$status', details = '$details' WHERE id = '$projectName'";
+                        $updateQuery = "UPDATE stgchart SET flying_hours = '$status',  details = CONCAT(details, '\n', NOW(), ': $details') WHERE id = '$projectName'";
                         if ($conn->query($updateQuery)) {
                             echo "Update successful! ";
                         } else {
@@ -259,6 +284,7 @@
                         <th class="text-center">Aircraft</th>
                         <th class="text-center">Tail ID</th>
                         <th class="text-center">Flying Hours</th>
+                        <th class="text-center">Aircraft Mod</th>
                         <th>Details</th>
                         <th>Max Hours</th>
                         <th>Last Updated</th>
@@ -284,9 +310,10 @@
                             echo '<td class="text-center">' . $row['aircraft'] . '</td>';
                             echo '<td class="text-center">' . $row['tail_id'] . '</td>';
                             echo '<td class="text-center">' . $row['flying_hours'] . '</td>';
+                            echo '<td class="text-center">' . $row['aircraftMod'] . '</td>';
                             echo '<td>';
                             echo '<button class="btn btn-link details-toggle" data-toggle="collapse" data-target="#details-row-' . $row['id'] . '">Show Details</button>';
-                            echo '<div id="details-row-' . $row['id'] . '" class="collapse">' . $row['details'] . '</div>';
+                            echo '<div id="details-row-' . ($count + 1) . '" class="collapse show">' . $row['details'] . '</div>';
                             echo '</td>';
                             echo '<td>' . $row['max_hours'] . '</td>';
                             echo '<td>' . $row['last_updated'] . '</td>';
@@ -312,6 +339,12 @@
 
 
 <script>
+    //Toggling feature for button ,Libraries
+        $(document).ready(function() {
+         $('.details-toggle').click(function() {
+             $(this).next('.collapse').collapse('toggle');
+            });
+        });
     function printCard() {
         var printContents = document.getElementById("list").outerHTML;
         var originalContents = document.body.innerHTML;
@@ -420,6 +453,7 @@ var maxHoursArray = <?php echo json_encode($max_hours_array); ?>;
     });
 
 
+    // New database Entities register here
     $('#addAircraft').submit(function(e){
         e.preventDefault(); // Prevent form submission
         var aircraft = $('#aircraft').val();
@@ -429,6 +463,7 @@ var maxHoursArray = <?php echo json_encode($max_hours_array); ?>;
         }
         var tail_id = $('#tail_id').val();
         var flying_hours = $('#flying_hours').val();
+        var aircraftMod = $('#aircraftMod').val();
         var details = $('#details').val();
         var max_hours = $('#max_hours').val();
         var airbase = "<?php echo $_SESSION['login_airbase']; ?>";
@@ -439,6 +474,7 @@ var maxHoursArray = <?php echo json_encode($max_hours_array); ?>;
                 aircraft: aircraft,
                 tail_id: tail_id,
                 flying_hours: flying_hours,
+                aircraftMod: aircraftMod,
                 details: details,
                 max_hours: max_hours,
                 airbase: airbase
