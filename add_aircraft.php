@@ -47,7 +47,7 @@
             <div class="form-group row mb-3">
             <label for="aircraft" class="col-sm-2 col-form-label">Aircraft:</label>
                 <div class="col-sm-10">
-                    <select id="aircraft" name="aircraft" class="form-control">
+                    <select id="aircraft" name="aircraft" class="form-control" required>
                         <option value="">-- Select an aircraft --</option>
                         <?php echo $aircraft_options; ?>
                     </select>
@@ -65,7 +65,7 @@
                 <div class="form-group row mb-3">
                     <label for="inspection_type" class="col-sm-2 col-form-label">Inspection Type:</label>
                     <div class="col-sm-10">
-                    <select id="inspection_type" name="inspection_type" class="form-control">
+                    <select id="inspection_type" name="inspection_type" class="form-control" required>
                         <option value="">-- Select an inspection type --</option>
                         <option value="scheduled">Scheduled</option>
                         <option value="unscheduled">Unscheduled</option>
@@ -212,7 +212,7 @@
                             <th class="text-center">Inspection Type</th>
                             <th>Date Started</th>
                             <th>Expected Completion Date</th>
-                            <th>Duration</th>
+                            <th>Duration (Days)</th>
                             <th>Status</th>
                             <th>Details</th>
                             <th>Actual Flying date</th>
@@ -230,7 +230,12 @@
                                 <td><?php echo $row['completion_date'] ?></td>
                                 <td><?php echo $row['duration'] ?></td>
                                 <td><?php echo $row['status'] ?>%</td>
-                                <td><?php echo $row['details'] ?></td>
+                                <td>
+                                <button class="btn btn-link details-toggle" data-toggle="collapse" data-target="#details-row-<?php echo $i + 1 ?>">Show Details</button>
+                                <div id="details-row-<?php echo $i + 1 ?>" class="collapse show">
+                                    <?php echo $row['details'] ?>
+                                </div>
+                                </td>
                                 <td><?php echo $row['flydate'] ?></td>
                                 <td>
                                     <button class="btn btn-danger btn-sm delete-btn" data-row='<?php echo json_encode($row); ?>'>

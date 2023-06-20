@@ -63,7 +63,7 @@
                 <div class="form-group row mb-3">
                     <label for="aircraft" class="col-sm-2 col-form-label">Aircraft:</label>
                     <div class="col-sm-10">
-                        <select id="aircraft" name="aircraft" class="form-control">
+                        <select id="aircraft" name="aircraft" class="form-control" required>
                             <option value="">-- Select an aircraft --</option>
                             <?php echo $aircraft_options; ?>
                         </select>
@@ -73,19 +73,19 @@
                 <div class="form-group row mb-3">
                     <label for="tail_id" class="col-sm-2 col-form-label">Tail Number:</label>
                     <div class="col-sm-10">
-                        <input type="text" id="tail_id" name="tail_id" class="form-control">
+                        <input type="text" id="tail_id" name="tail_id" class="form-control" required>
                     </div>
                 </div>
                 <div class="form-group row mb-3">
                     <label for="flying_hours" class="col-sm-2 col-form-label">Flying Hours:</label>
                     <div class="col-sm-10">
-                        <input type="text" id="flying_hours" name="flying_hours" class="form-control">
+                        <input type="text" id="flying_hours" name="flying_hours" class="form-control" pattern="^\d+(\.\d+)?$" title="Please enter a valid integer or decimal number" required>
                     </div>
                 </div>
                 <div class="form-group row mb-3">
                     <label for="aircraftMOd" class="col-sm-2 col-form-label">Aircraft Mod:</label>
                     <div class="col-sm-10">
-                        <select id="aircraftMod" name="aircraftMod" class="form-control">
+                        <select id="aircraftMod" name="aircraftMod" class="form-control" required>
                             <option value="">-- Select an aircraft Mod --</option>
                             <?php echo  $aircraftMode; ?>
                         </select>
@@ -124,7 +124,7 @@
             <form action="" id="updateStatusForm" method="POST">
                 <div class="form-group">
                     <label for="aircraftSelect">Select Aircraft:</label>
-                    <select id="aircraftSelect" name="aircraftSelect" class="form-control">
+                    <select id="aircraftSelect" name="aircraftSelect" class="form-control" required>
                         <option value="">-- Select an aircraft --</option>
                         <?php 
                             $result = $conn->query("SELECT * FROM stgchart where airbase ='".$_SESSION['login_airbase']."'");
@@ -137,7 +137,7 @@
                 </div>
                 <div class="form-group">
                     <label for="aircraftMod">Select Aircraft Mod:</label>
-                    <select id="aircraftMod" name="aircraftMod" class="form-control">
+                    <select id="aircraftMod" name="aircraftMod" class="form-control" required>
                         <option value="">-- Select an aircraft Mod --</option>
                             <?php echo  $aircraftMode; ?>
                     </select>
@@ -148,9 +148,12 @@
                     <div class="col">
                         <textarea id="details" name="details" class="form-control"></textarea>
                     </div>
-
-                    <label for="status">Flying Hours:</label>
-                    <input type="text" id="status" name="status" class="form-control" required>
+                    <div class="form-group row mb-3">
+                    <label for="status" >Flying Hours:</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="status" name="status" class="form-control" pattern="^\d+(\.\d+)?$" title="Please enter a valid integer or decimal number" required>
+                    </div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <button class="btn btn-primary" type="submit" name="update">Update</button>
@@ -163,7 +166,7 @@
                         $details = $_POST['details'];
 
                         // Perform the update operation
-                        $updateQuery = "UPDATE stgchart SET flying_hours = '$status',  details = CONCAT(details, '\n', NOW(), ': $details') WHERE id = '$projectName'";
+                        $updateQuery = "UPDATE stgchart SET flying_hours = '$status', aircraftMod='$aircraftMod',  details = CONCAT(details, ',\n[', NOW(), ']  : $details') WHERE id = '$projectName'";
                         if ($conn->query($updateQuery)) {
                             echo "Update successful! ";
                         } else {

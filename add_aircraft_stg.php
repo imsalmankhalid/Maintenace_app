@@ -48,7 +48,7 @@
             <div class="form-group row mb-3">
             <label for="aircraft" class="col-sm-2 col-form-label">Aircraft:</label>
                 <div class="col-sm-10">
-                    <select id="aircraft" name="aircraft" class="form-control">
+                    <select id="aircraft" name="aircraft" class="form-control" required>
                         <option value="">-- Select an aircraft --</option>
                         <?php echo $aircraft_options; ?>
                     </select>
@@ -66,7 +66,7 @@
                 <div class="form-group row mb-3">
                     <label for="inspection_type" class="col-sm-2 col-form-label">Aircraft State:</label>
                     <div class="col-sm-10">
-                    <select id="inspection_type" name="inspection_type" class="form-control">
+                    <select id="inspection_type" name="inspection_type" class="form-control" required>
                         <option value="">-- Select an state --</option>
                         <option value="Flying">Flying</option>
                         <option value="Maintenance">Maintenance</option>
@@ -113,7 +113,7 @@
             <form action="" id="updateStatusForm" method="POST">
                 <div class="form-group">
                     <label for="aircraftSelect">Select Aircraft:</label>
-                    <select id="aircraftSelect" name="aircraftSelect" class="form-control">
+                    <select id="aircraftSelect" name="aircraftSelect" class="form-control" required>
                         <option value="">-- Select an aircraft --</option>
                         <?php 
                             $result = $conn->query("SELECT project_name FROM project_tasks WHERE phase_name = 'stg' AND airbase ='".$_SESSION['login_airbase']."'");
@@ -128,7 +128,7 @@
 
                     <label for="inspection_type" class=" col-form-label">Aircraft State:</label>
                     <div class="col">
-                    <select id="inspection_type" name="inspection_type" class="form-control">
+                    <select id="inspection_type" name="inspection_type" class="form-control" required>
                         <option value="">-- Select an state --</option>
                         <option value="Flying">Flying</option>
                         <option value="Maintenance">Maintenance</option>
@@ -155,7 +155,7 @@
                         $inspection_Type = $_POST['inspection_type'];
 
                         // Perform the update operation
-                        $updateQuery = "UPDATE project_tasks SET status = $status, inspectionType='$inspection_Type', details = CONCAT(details, '\n', NOW(), ': $details') WHERE project_name = '$projectName' AND phase_name = 'stg'";
+                        $updateQuery = "UPDATE project_tasks SET status = $status, inspectionType='$inspection_Type', details = CONCAT(details, ',\n[', NOW(), ']  : $details') WHERE project_name = '$projectName' AND phase_name = 'stg'";
                         if ($conn->query($updateQuery)) {
                             echo "Update successful! ";
                         } else {
