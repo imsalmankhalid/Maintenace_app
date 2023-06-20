@@ -8,13 +8,13 @@ include 'db_connect.php';
 
     if(isset($_REQUEST['aircraft_id'])){
         $aircraft = $_REQUEST['aircraft_id'];
-        $where = "WHERE project_name LIKE '{$aircraft}_%'";
+        $where = "WHERE project_name LIKE '{$aircraft}_%' AND airbase='" . $_REQUEST['airbase'] . "' AND phase_name <> 'stg'";
         $qry ="SELECT DISTINCT project_name AS project_name FROM project_tasks ".$where;
        
     }
 
     if(isset($_REQUEST['project_name'])){
-        $where = "WHERE project_name = '{$_REQUEST['project_name']}' "; 
+        $where = "WHERE project_name = '{$_REQUEST['project_name']}' AND airbase='" . $_REQUEST['airbase'] . "' AND phase_name <> 'stg'";
         $qry = "SELECT DISTINCT phase_name FROM project_tasks ".$where." AND phase_name <> 'stg'";       
     }
 

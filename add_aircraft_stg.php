@@ -155,7 +155,7 @@
                         $inspection_Type = $_POST['inspection_type'];
 
                         // Perform the update operation
-                        $updateQuery = "UPDATE project_tasks SET status = $status, inspectionType='$inspection_Type', details = CONCAT(details, '\n', NOW(), ': $details') WHERE project_name = '$projectName'";
+                        $updateQuery = "UPDATE project_tasks SET status = $status, inspectionType='$inspection_Type', details = CONCAT(details, '\n', NOW(), ': $details') WHERE project_name = '$projectName' AND phase_name = 'stg'";
                         if ($conn->query($updateQuery)) {
                             echo "Update successful! ";
                         } else {
