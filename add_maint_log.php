@@ -80,7 +80,7 @@
                                 <textarea class="form-control" id="details" name="details"></textarea>
                     </div>
                     <div class="form-group col-sm-4" id='unsch'>
-                                <label for="status">Status:</label>
+                                <label for="status">Status: (Work Done %)</label>
                                 <input type="number" id="status" name="status" class="form-control" min="0" max="100" required>
                     </div>
                     
@@ -137,7 +137,7 @@
                 load_tail_id();
             });
 
-			// Load phase name options
+			// Load phase name options,tasks and Status settings of Loog Form
 			$("#tail_id").change(function(){
                 var project_name = $("#tail_id").val();
 				$.ajax({
@@ -211,19 +211,29 @@
 					}
 				});
 			});
-
+            //Log Task form buttton submission Checks
             $("#log-task-button").click(function(event) {
                 event.preventDefault(); // prevent form submission
-                var hasEmpty = false;
+                var schEmpty = false;
                 $("select").each(function() {
                 if ($(this).attr("id") !== "aircraft_id" && $(this).prop('selectedIndex') <= 0) {
-                    hasEmpty = true;
+                    schEmpty = true;
                     return false;
                 }
                 });
-                if (hasEmpty && !$("#sch").is(":hidden"))  {
+                var unschEmpty = false;
+                $("select").each(function() {
+                    if ($(this).attr("id") !== "aircraft_id" && $("#status").val() === null || $("#status").val() < 1 || $("#status").val() > 100) {
+                    unschEmpty = true;
+                    return false;
+                    }
+                });
+                if (schEmpty && !$("#sch").is(":hidden")) {
                     alert("Please fill in all the fields before submitting.");
-                } else {
+                } else if (unschEmpty && $("#sch").is(":hidden"))
+                {
+                    alert("Please Select Status of work done from 1 to 100%.");
+                } else{
                     var project_name = $("#tail_id").val();
                     var phase_name = $("#phase_name").val();
                     var task_name = $("#task_name").val();
