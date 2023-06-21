@@ -315,7 +315,7 @@
                             echo '<td class="text-center">' . $row['flying_hours'] . '</td>';
                             echo '<td class="text-center">' . $row['aircraftMod'] . '</td>';
                             echo '<td>';
-                            echo '<button class="btn btn-link details-toggle" data-toggle="collapse" data-target="#details-row-' . $row['id'] . '">Show Details</button>';
+                            echo '<button class="btn btn-link details-toggle" data-toggle="collapse" data-target="#details-row-' . $row['id'] . '">Hide Details</button>';
                             echo '<div id="details-row-' . ($count + 1) . '" class="collapse show">' . $row['details'] . '</div>';
                             echo '</td>';
                             echo '<td>' . $row['max_hours'] . '</td>';
