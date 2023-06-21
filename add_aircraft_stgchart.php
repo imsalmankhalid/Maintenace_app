@@ -201,6 +201,7 @@
         $status = $row['status'];
         $start_date = '';
         $flyingdate = '';
+        $delays = '';
 
         // fetch the start date for the project
         $result = $conn->query("SELECT start_date FROM project_tasks WHERE project_name = '$project_name' ORDER BY start_date ASC LIMIT 1");
@@ -230,6 +231,7 @@
             'duration' => $duration,
             'status' => $status,
             'flydate' => $flyingdate,
+            'delays' => $delays,
             'inspectionType' => $inspectionType,
             'details' => $details
         );

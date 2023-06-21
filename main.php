@@ -22,6 +22,7 @@ if($_SESSION['login_type'] != 1)
       $inspectionType = $row['inspectionType'];
       $start_date = '';
       $flyingdate = '';
+      $delays = '';
 
       // fetch the start date for the project
       $result = $conn->query("SELECT start_date FROM project_tasks WHERE project_name = '$project_name' ORDER BY start_date ASC LIMIT 1");
@@ -59,8 +60,10 @@ if($_SESSION['login_type'] != 1)
               }
           } 
       }
-      if($status == 100)
-          $flyingdate = date('Y-m-d H:i:s');
+      if($status == 100){
+        $flyingdate = date('Y-m-d H:i:s');
+        $delays = strcmp($flyingdate, $last_end_date);
+      }
       // split project name by underscore to get aircraft name and tail id
       $name_parts = explode('_', $project_name);
       $aircraft_name = $name_parts[0];
@@ -75,6 +78,7 @@ if($_SESSION['login_type'] != 1)
           'duration' => $duration,
           'status' => $status,
           'flydate' => $flyingdate,
+          'delays' => $delays,
           'inspectionType' => $inspectionType,
           'details' => $details
       );

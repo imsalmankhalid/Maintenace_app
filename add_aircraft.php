@@ -41,7 +41,7 @@
 	<div class="card card-outline card-primary">
 		<div class="card-body">
         <div class="card-header" style="font-weight: bold; font-size: 20px;">
-                Maintenance Database
+                Registration Maintenance Aircrafts
             </div>
 			<form action="" id="addAircraft">
             <div class="form-group row mb-3">
@@ -131,6 +131,7 @@
         $inspectionType = $row['inspectionType'];
         $start_date = '';
         $flyingdate = '';
+        $delays = '';
 
         // fetch the start date for the project
         $result = $conn->query("SELECT start_date FROM project_tasks WHERE project_name = '$project_name' ORDER BY start_date ASC LIMIT 1");
@@ -168,8 +169,10 @@
                 }
             } 
         }
-        if($status == 100)
+        if($status == 100){
             $flyingdate = date('Y-m-d H:i:s');
+            $delays = strcmp($flyingdate, $last_end_date);
+        }
         // split project name by underscore to get aircraft name and tail id
         $name_parts = explode('_', $project_name);
         $aircraft_name = $name_parts[0];
@@ -184,6 +187,7 @@
             'duration' => $duration,
             'status' => $status,
             'flydate' => $flyingdate,
+            'delays' => $delays,
             'inspectionType' => $inspectionType,
             'details' => $details
         );
@@ -197,7 +201,7 @@
     <div class="card-body">
         <div class="card-header" style="font-weight: bold; font-size: 20px;">
             <div class="d-flex justify-content-between align-items-center">
-                <div>Maintenance Aircraft List</div>
+                <div>Maintenance Aircrafts List</div>
                 <button class="btn btn-flat btn-primary" onclick="printCard()"><i class="fa fa-print"></i>Print</button>
             </div>
         </div>
@@ -216,6 +220,7 @@
                             <th>Status</th>
                             <th>Details</th>
                             <th>Actual Flying date</th>
+                            <th>Delays (Days)</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -237,6 +242,7 @@
                                 </div>
                                 </td>
                                 <td><?php echo $row['flydate'] ?></td>
+                                <td><?php echo $row['delays'] ?></td>
                                 <td>
                                     <button class="btn btn-danger btn-sm delete-btn" data-row='<?php echo json_encode($row); ?>'>
                                         Delete
