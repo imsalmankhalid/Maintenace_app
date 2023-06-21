@@ -93,10 +93,10 @@ function loadGanttChart() {
   <div class="card-header">
     <ul class="nav nav-tabs card-header-tabs">
       <li class="nav-item">
-        <a class="nav-link active" data-toggle="tab" href="#tab1">Gantt Chart</a>
+        <a class="nav-link active" data-toggle="tab" href="#tab1">Gantt Charts of Scheduled Aircrafts</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#tab2">Details</a>
+        <a class="nav-link" data-toggle="tab" href="#tab2">Details of Scheduled Aircrafts (Tasks & Delays) </a>
       </li>
     </ul>
   </div>
@@ -135,7 +135,7 @@ function loadGanttChart() {
             <div class="card card-outline card-success">
               <div class="card-body">
                       <div class="card-header" style="font-weight: bold; font-size: 20px;">
-                          Maintenance Aircraft List
+                          Scheduled Maintenance Aircraft Details
                       </div>
                       <div class="card-body">
                           <input type="text" id="search-input" class="form-control mb-3" placeholder="Search">
@@ -172,8 +172,8 @@ function loadGanttChart() {
                                   <td><?php echo $row['duration'] ?></td>
                                   <td>
                                     <?php if (!empty($row['details']) && strlen($row['details']) > 0) { ?>
-                                      <a class="details-toggle" data-toggle="collapse" href="#details-<?php echo $row['id']; ?>" role="button" aria-expanded="false" aria-controls="details-<?php echo $row['id']; ?>">Details</a>
-                                      <div class="collapse" id="details-<?php echo $row['id']; ?>">
+                                      <a class="details-toggle" data-toggle="collapse" href="#details-<?php echo $row['id']; ?>" role="button" aria-expanded="false" aria-controls="details-<?php echo $row['id']; ?>">Hide Details</a>
+                                      <div class="collapse show" id="details-<?php echo $row['id']; ?>">
                                         <?php echo $row['details'] ?>
                                       </div>
                                     <?php } ?>

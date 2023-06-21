@@ -13,7 +13,8 @@
 <body>
 
 <div class="container mt-5">
-    <h2>Log Task Form</h2>
+<h2>Log Task Form</h2>
+<span style="font-weight: bold; margin-left: 10px;">(Can fill multiple times)</span>
     <form action="">
     <div class="form-group">
 	            <label for="aircraft_id">Aircraft:</label>
@@ -69,14 +70,16 @@
                 <input type="hidden" id="user_id" name="user_id" value="1">
                 <div class="form-group">
 
-                    <div class="col-sm-3" id='sch'>   
-                        <label for="days">Select Days to log:</label>
+                    <div class="col-sm-6" id='sch'>   
+                        <label for="days">Scheduled days assigned to same task: </label><br>
+                         <span>(Can submit one by one, even on the same day)</span>
                         <select class="form-control" id="days" name="days"></select>
                     </div>
                 </div>
     </div>
                     <div class="form-group">
-                                <label for="details">Details:</label>
+                                <label for="details">Report Details: </label><br>
+                                <span> (Any Delays, AO Days, MICAP etc )</span>
                                 <textarea class="form-control" id="details" name="details"></textarea>
                     </div>
                     <div class="form-group col-sm-4" id='unsch'>

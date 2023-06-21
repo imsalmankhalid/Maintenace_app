@@ -20,7 +20,7 @@
             <a href="#" class="nav-link nav-edit_project nav-view_project">
               <i class="nav-icon fas fa-layer-group"></i>
               <p>
-                Projects
+                Unscheduled Projects
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
@@ -29,13 +29,13 @@
               <li class="nav-item">
                 <a href="./index.php?page=new_project" class="nav-link nav-new_project tree-item">
                   <i class="fas fa-angle-right nav-icon"></i>
-                  <p>Add New</p>
+                  <p>Add New Project</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a href="./index.php?page=project_list" class="nav-link nav-project_list tree-item">
                   <i class="fas fa-angle-right nav-icon"></i>
-                  <p>List</p>
+                  <p>List of Projects</p>
                 </a>
               </li>
             </ul>
@@ -43,7 +43,7 @@
           <li class="nav-item">
                 <a href="./index.php?page=task_list" class="nav-link nav-task_list">
                   <i class="fas fa-tasks nav-icon"></i>
-                  <p>Task</p>
+                  <p>Tasks of a Project</p>
                 </a>
           </li>
 
@@ -51,7 +51,7 @@
         <li class="nav-item">
             <a href="./index.php?page=reports" class="nav-link nav-reports">
                 <i class="fas fa-th-list nav-icon"></i>
-                <p>Report</p>
+                <p>Unscheduled Project Report</p>
             </a>
         </li>
 
@@ -69,19 +69,19 @@
               <li class="nav-item">
               <a href="./index.php?page=add_aircraft" class="nav-link add_aircraft">
                   <i class="fas fa-angle-right nav-icon"></i>
-                  <p>Register Aircraft for Maintenance</p>
+                  <p>Register maintenance Aircrafts List</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a href="./index.php?page=maint_list" class="nav-link nav-project_list tree-item">
                   <i class="fas fa-angle-right nav-icon"></i>
-                  <p>List of Aircrafts</p>
+                  <p>Scheduled Aircrafts Maintenance</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a href="./index.php?page=add_maint_log" class="nav-link nav-project_list tree-item">
                   <i class="fas fa-angle-right nav-icon"></i>
-                  <p>Add Maintenance Work</p>
+                  <p>Update Maintenance Tasks</p>
                 </a>
               </li>
             </ul>
