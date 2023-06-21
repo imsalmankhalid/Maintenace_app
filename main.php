@@ -60,11 +60,16 @@ if($_SESSION['login_type'] != 1)
               }
           } 
       }
-      // flying date entering;
-      if(($status == 100) && (empty($flyingdate))){
-        $flyingdate = date('Y-m-d H:i:s');
-        $delays = strcmp($flyingdate, $last_end_date);
-      }
+        // flying date entering;
+        if(($status == 100) && (empty($flyingdate))){
+          $flyingdate = date('Y-m-d H:i:s');
+          
+          $flyingtime = time();
+          $task_end_date = strtotime($last_end_date);
+          $delays1 = $flyingtime - $task_end_date;
+          $days_diff = $delays1 / (60 * 60 * 24);
+          $delays = (int)floor($days_diff);
+       }
       // split project name by underscore to get aircraft name and tail id
       $name_parts = explode('_', $project_name);
       $aircraft_name = $name_parts[0];

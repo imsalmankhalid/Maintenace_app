@@ -170,11 +170,16 @@
             } 
         }
         // flying date entering;
-
         if(($status == 100) && (empty($flyingdate))){
             $flyingdate = date('Y-m-d H:i:s');
-            $delays = strcmp($flyingdate, $last_end_date);
+          
+            $flyingtime = time();
+            $task_end_date = strtotime($last_end_date);
+            $delays1 = $flyingtime - $task_end_date;
+            $days_diff = $delays1 / (60 * 60 * 24);
+            $delays = (int)floor($days_diff);
         }
+
         // split project name by underscore to get aircraft name and tail id
         $name_parts = explode('_', $project_name);
         $aircraft_name = $name_parts[0];
@@ -221,7 +226,7 @@
                             <th>Duration (Days)</th>
                             <th>Status</th>
                             <th>Details</th>
-                            <th>Aircraft Ready date</th>
+                            <th>Aircraft Ready date (Actual)</th>
                             <th>Delays (Days)</th>
                             <th>Action</th>
                         </tr>
@@ -244,7 +249,20 @@
                                 </div>
                                 </td>
                                 <td><?php echo $row['flydate'] ?></td>
-                                <td><?php echo $row['delays'] ?></td>
+                            <td>
+                                <?php
+                                $delays = $row['delays'];
+                                if ($delays == 0) {
+                                    echo '<span style="color: yellow;text-align: center; display: block;">No delays</span>';
+                                } elseif ($delays > 0) {
+                                    echo '<span style="color: red;text-align: center; display: block;">' . $delays . '<br>Days Late</span>';
+                                } elseif (($delays < 0)){
+                                    $newdelays = abs((int)$delays);
+                                    if ($newdelays != 0)
+                                    echo '<span style="color: green;text-align: center; display: block;">'. $newdelays .'<br>Days before time</span>';
+                                }
+                                ?>
+                            </td>
                                 <td>
                                     <button class="btn btn-danger btn-sm delete-btn" data-row='<?php echo json_encode($row); ?>'>
                                         Delete
