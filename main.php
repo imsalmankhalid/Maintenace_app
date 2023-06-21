@@ -60,7 +60,8 @@ if($_SESSION['login_type'] != 1)
               }
           } 
       }
-      if($status == 100){
+      // flying date entering;
+      if(($status == 100) && (empty($flyingdate))){
         $flyingdate = date('Y-m-d H:i:s');
         $delays = strcmp($flyingdate, $last_end_date);
       }

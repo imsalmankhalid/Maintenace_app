@@ -169,7 +169,9 @@
                 }
             } 
         }
-        if($status == 100){
+        // flying date entering;
+
+        if(($status == 100) && (empty($flyingdate))){
             $flyingdate = date('Y-m-d H:i:s');
             $delays = strcmp($flyingdate, $last_end_date);
         }
@@ -219,7 +221,7 @@
                             <th>Duration (Days)</th>
                             <th>Status</th>
                             <th>Details</th>
-                            <th>Actual Flying date</th>
+                            <th>Aircraft Ready date</th>
                             <th>Delays (Days)</th>
                             <th>Action</th>
                         </tr>
