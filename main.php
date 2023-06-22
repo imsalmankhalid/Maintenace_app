@@ -234,7 +234,7 @@ if($_SESSION['login_type'] != 1)
           <div class="card card-outline card-success" id="hrcy">
               <div class="card-header">
               <div class="d-flex justify-content-between align-items-center">
-                <b>Wing Hierarchy  - <?php echo $_SESSION['login_airbase'] ?> </b>
+                <b>Engg Wing Hierarchy  - <?php echo $_SESSION['login_airbase'] ?> </b>
                 <button class="btn btn-flat btn-primary" onclick="printhrc()"><i class="fa fa-print"></i>Print</button>
                 </div>
               </div>
