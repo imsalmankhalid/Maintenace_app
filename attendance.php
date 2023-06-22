@@ -72,7 +72,7 @@ $users = $conn->query("SELECT * FROM users");
 <body>
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Record Attendance</h3>
+        <h3 class="card-title" style="font-weight: bold; font-size: 24px;">Record Attendance</h3>
         </div>
         <div class="card-body">
             <form method="POST">

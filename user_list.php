@@ -2,6 +2,12 @@
 <div class="col-lg-12">
 	<div class="card card-outline card-success">
 		<div class="card-header">
+		<div class="d-flex justify-content-between align-items-center">
+			<div class="text-center">
+		 	<h1 style="font-weight: bold; font-size: 24px;">Users List</h1>
+			<button class="btn btn-flat btn-primary" onclick="printCard()"><i class="fa fa-print"></i>Print</button>
+			</div>
+		</div>
 			<div class="card-tools">
 				<a class="btn btn-block btn-sm btn-default btn-flat border-primary" href="./index.php?page=new_user"><i class="fa fa-plus"></i> Add New User</a>
 			</div>
@@ -85,5 +91,11 @@
         }
     });
 }
-
+function printCard() {
+        var printContents = document.getElementById("list").outerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
 </script>

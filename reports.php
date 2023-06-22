@@ -17,6 +17,8 @@
                   <col width="15%">
                   <col width="15%">
                 </colgroup> -->
+                <input type="text" id="search-input" class="form-control mb-3" placeholder="Search">
+                <table class="table table-hover table-condensed" id="list">
                 <thead>
                   <th>#</th>
                   <th>Project</th>
@@ -118,4 +120,17 @@
         window.print();
         document.body.innerHTML = originalContents;
     }
+    // Filter table rows based on search term
+    $("#search-input").on("keyup", function() {
+        var searchTerm = $(this).val().toLowerCase();
+        $("#list tbody tr").each(function() {
+            var $row = $(this);
+            var rowData = $row.text().toLowerCase();
+            if (rowData.indexOf(searchTerm) === -1) {
+                $row.hide();
+            } else {
+                $row.show();
+            }
+        });
+    });
 </script>

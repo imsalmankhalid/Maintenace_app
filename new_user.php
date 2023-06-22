@@ -1,6 +1,11 @@
 <?php  include 'db_connect.php';  ?>
 <div class="col-lg-12">
 	<div class="card">
+	<div class="card-header">
+		<div class="d-flex justify-content-between align-items-center">
+            <h1 class="text-center" style="font-weight: bold; font-size: 24px;">Register New User</h1>
+		</div>
+    </div>
 		<div class="card-body">
 			<form action="" id="manage_user">
 				<input type="hidden" name="id" value="<?php echo isset($id) ? $id : '' ?>">

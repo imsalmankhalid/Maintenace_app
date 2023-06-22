@@ -2,6 +2,11 @@
 ?>
 <div class="col-lg-12">
 	<div class="card">
+	<div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="text-center" style="font-weight: bold; font-size: 24px;"> Register New Air Base</h1>
+            </div>
+     </div>
 		<div class="card-body">
 			<form action="" id="manage_user">
 				<input type="hidden" name="id" value="<?php echo isset($id) ? $id : '' ?>">
@@ -36,9 +41,13 @@
 <div class="col-lg-12">
 	<div class="card card-outline card-success">
 		<div class="card-header">
+		<div class="d-flex justify-content-between align-items-center">
+            <h1 class="text-center" style="font-weight: bold; font-size: 24px;">Air Bases List</h1>
 		</div>
 		<div class="card-body">
 			<table class="table tabe-hover table-bordered" id="list">
+			<input type="text" id="search-input" class="form-control mb-3" placeholder="Search">
+            <table class="table table-hover table-condensed" id="list">
 				<thead>
 					<tr>
 						<th class="text-center">#</th>
@@ -124,4 +133,17 @@
 			}
 		})
 	})
+	 // Filter table rows based on search term
+	 $("#search-input").on("keyup", function() {
+        var searchTerm = $(this).val().toLowerCase();
+        $("#list tbody tr").each(function() {
+            var $row = $(this);
+            var rowData = $row.text().toLowerCase();
+            if (rowData.indexOf(searchTerm) === -1) {
+                $row.hide();
+            } else {
+                $row.show();
+            }
+        });
+    });
 </script>

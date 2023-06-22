@@ -40,7 +40,7 @@
 						$where = " where concat('[',REPLACE(p.user_ids,',','],['),']') LIKE '%[{$_SESSION['login_id']}]%' ";
 					}
 					
-					$stat = array("Pending","Started","On-Progress","On-Hold","Over Due","Done");
+					$stat = array("Pending","Started","In-Progress","On-Hold","Over Due","Done");
 					$qry = $conn->query("SELECT t.*,p.name as pname,p.start_date,p.status as pstatus, p.end_date,p.id as pid FROM task_list t inner join project_list p on p.id = t.project_id $where order by p.name asc");
 					while($row= $qry->fetch_assoc()):
 						$trans = get_html_translation_table(HTML_ENTITIES,ENT_QUOTES);
@@ -80,7 +80,7 @@
 							  	echo "<span class='badge badge-secondary'>{$stat[$row['pstatus']]}</span>";
 							  }elseif($stat[$row['pstatus']] =='Started'){
 							  	echo "<span class='badge badge-primary'>{$stat[$row['pstatus']]}</span>";
-							  }elseif($stat[$row['pstatus']] =='On-Progress'){
+							  }elseif($stat[$row['pstatus']] =='In-Progress'){
 							  	echo "<span class='badge badge-info'>{$stat[$row['pstatus']]}</span>";
 							  }elseif($stat[$row['pstatus']] =='On-Hold'){
 							  	echo "<span class='badge badge-warning'>{$stat[$row['pstatus']]}</span>";
@@ -96,7 +96,7 @@
                         	if($row['status'] == 1){
 						  		echo "<span class='badge badge-secondary'>Pending</span>";
                         	}elseif($row['status'] == 2){
-						  		echo "<span class='badge badge-primary'>On-Progress</span>";
+						  		echo "<span class='badge badge-primary'>In-Progress</span>";
                         	}elseif($row['status'] == 3){
 						  		echo "<span class='badge badge-success'>Done</span>";
                         	}

@@ -31,7 +31,7 @@
 				<tbody>
 					<?php
 					$i = 1;
-					$stat = array("Pending","Started","On-Progress","On-Hold","Over Due","Done");
+					$stat = array("Pending","Started","In-Progress","On-Hold","Over Due","Done");
 					$where = "";
 					if($_SESSION['login_type'] == 1){
 						$where = '';
@@ -73,7 +73,7 @@
 							  	echo "<span class='badge badge-secondary'>{$stat[$row['status']]}</span>";
 							  }elseif($stat[$row['status']] =='Started'){
 							  	echo "<span class='badge badge-primary'>{$stat[$row['status']]}</span>";
-							  }elseif($stat[$row['status']] =='On-Progress'){
+							  }elseif($stat[$row['status']] =='In-Progress'){
 							  	echo "<span class='badge badge-info'>{$stat[$row['status']]}</span>";
 							  }elseif($stat[$row['status']] =='On-Hold'){
 							  	echo "<span class='badge badge-warning'>{$stat[$row['status']]}</span>";
