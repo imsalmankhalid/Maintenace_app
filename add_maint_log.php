@@ -235,7 +235,7 @@
                     alert("Please fill in all the fields before submitting.");
                 } else if (unschEmpty && $("#sch").is(":hidden"))
                 {
-                    alert("Please Select Status of work done from 1 to 100%.");
+                    alert("Please Select Status of work done from 1 to 100");
                 } else{
                     var project_name = $("#tail_id").val();
                     var phase_name = $("#phase_name").val();

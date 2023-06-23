@@ -516,6 +516,7 @@ var maxHoursArray = <?php echo json_encode($max_hours_array); ?>;
         .done(function (jsonData) {
             console.log(jsonData);
           const tailIds = jsonData.map(item => item.tail_id);
+          const aircraft_Mod = jsonData.map(item => item.aircraftMod);
           const flyingHours = jsonData.map(item => item.flying_hours);
           const maxHours = jsonData.map(item => item.max_hours);
           const flyingHours2 = jsonData.map(item => Math.min(item.flying_hours, item.max_hours));
@@ -575,7 +576,7 @@ var maxHoursArray = <?php echo json_encode($max_hours_array); ?>;
           });
 
           // Create suggestions table
-          createSuggestionsTable(tailIds, flyingHours, slopeLine);
+          createSuggestionsTable(tailIds,aircraft_Mod,flyingHours,maxHours,slopeLine);
         })
         .fail(function (jqxhr, textStatus, error) {
           console.log("Error retrieving data: " + error);
@@ -583,47 +584,77 @@ var maxHoursArray = <?php echo json_encode($max_hours_array); ?>;
         });
     }
 
-    function createSuggestionsTable(tailIds, flyingHours, slopeLine) {
+    function createSuggestionsTable(tailIds,aircraft_Mod,flyingHours,maxHours,slopeLine) {
   suggestionsTable = document.createElement('table');
   suggestionsTable.classList.add('table', 'table-bordered');
 
   var tableHeader = suggestionsTable.createTHead();
   var headerRow = tableHeader.insertRow();
+  headerRow.insertCell().innerHTML = '<b>No#</b>';
   headerRow.insertCell().innerHTML = '<b>Tail ID</b>';
+  headerRow.insertCell().innerHTML = '<b>Aircraft Mod</b>';
   headerRow.insertCell().innerHTML = '<b>Flying Hours</b>';
+  headerRow.insertCell().innerHTML = '<b>Remaining Flying Hours</b>';
   headerRow.insertCell().innerHTML = '<b>Suggested Value (+/-)</b>';
+  headerRow.insertCell().innerHTML = '<b>Future Advice</b>';
 
   for (let i = 0; i < tailIds.length; i++) {
+    const serial = i+1;
     const tailId = tailIds[i];
+    const aircraftMods = aircraft_Mod[i];
     const flyingHour = flyingHours[i];
+    const maximumHour =maxHours[i];
+    const remFlyingHour = maximumHour -flyingHour;
     const suggestion = flyingHour - slopeLine[i] > 0 ? 'Over Flying: ' : (flyingHour - slopeLine[i] < 0 ? 'Under Flying: ' : '');
+    const decision = flyingHour - slopeLine[i] > 0 ? 'Fly less' : (flyingHour - slopeLine[i] < 0 ? 'Can Fly More' : '');
     const diff = Math.abs(flyingHour - slopeLine[i]).toFixed(2); // Limit decimal to 2 points
 
     const newRow = suggestionsTable.insertRow();
+    newRow.insertCell().textContent = serial;
     newRow.insertCell().textContent = tailId;
+    newRow.insertCell().textContent = aircraftMods;
     newRow.insertCell().textContent = flyingHour;
+    newRow.insertCell().textContent = remFlyingHour;
     
     const suggestionCell = newRow.insertCell();
     suggestionCell.innerHTML = suggestion + diff + ' Hours';
+    const decisionCell = newRow.insertCell();
+    decisionCell.innerHTML = decision;
     
     if (suggestion === 'Over Flying: ') {
       suggestionCell.style.fontWeight = 'bold';
+      decisionCell.style.fontWeight = 'bold';
       suggestionCell.style.color = 'red';
+      decisionCell.style.color = 'red';
     } else if (suggestion === 'Under Flying: ') {
       suggestionCell.style.fontWeight = 'bold';
       suggestionCell.style.color = 'blue';
+      decisionCell.style.fontWeight = 'bold';
+      decisionCell.style.color = 'blue';
     }
     else{
         suggestionCell.style.fontWeight = 'bold';
       suggestionCell.style.color = 'green'; 
+      decisionCell.style.color = 'green';
     }
   }
 
   tableContainer.innerHTML = `
   <div class="card card-outline card-success" id="analys">
       <div class="card-header" style="font-weight: bold; font-size: 20px;">
-      <h5 class="card-title">Flying Analysis</h5>
-      <button class="btn btn-flat btn-primary" onclick="printanalysis()"><i class="fa fa-print"></i>Print</button>
+      <h5 class="card-title"><strong><b>Flying Analysis</b></strong></h5>
+    <style>
+    .container {
+        display: flex;
+        justify-content: flex-end;
+    }
+    </style>
+    <div class="container">
+    <input type="text" id="search" class="form-control mb-3" placeholder="Search">
+    <button class="btn btn-flat btn-primary" onclick="printanalysis()">
+        <i class="fa fa-print"></i> Print
+    </button>
+    </div>
       </div>
       <div class="card-body">
         <table class="table table-hover table-condensed" id="list">
@@ -644,5 +675,17 @@ var maxHoursArray = <?php echo json_encode($max_hours_array); ?>;
   printWindow.document.write('<html><head><title>Chart Print</title></head><body>' + printContent.innerHTML + '</body></html>');
   printWindow.document.close();
   printWindow.print();
+  
 }
+
+var $rows = $('#suggestionsTable');
+$('#search').keyup(function() {
+    var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+
+    $rows.show().filter(function() {
+        var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+        return !~text.indexOf(val);
+    }).hide();
+});
 </script>
+

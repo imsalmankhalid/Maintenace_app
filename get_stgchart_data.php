@@ -34,6 +34,7 @@ while ($row = $result->fetch_assoc()) {
         "id" => intval($row["id"]),
         "aircraft" => $row["aircraft"],
         "tail_id" => $row["tail_id"],
+        "aircraftMod" => $row["aircraftMod"],
         "flying_hours" => floatval($row["flying_hours"]),
         "details" => $row["details"],
         "max_hours" => intval($row["max_hours"]),
